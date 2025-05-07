@@ -153,7 +153,6 @@ const AdminVillages = () => {
   const validateForm = () => {
     const errors = {};
     if (!villageForm.name.trim()) errors.name = 'اسم القرية مطلوب';
-    if (!villageForm.description.trim()) errors.description = 'وصف القرية مطلوب';
     if (!villageForm.cityId) errors.cityId = 'اختيار المدينة مطلوب';
     if (!isEditing && !villageForm.image) errors.image = 'صورة القرية مطلوبة';
     setFormErrors(errors);

@@ -20,7 +20,8 @@ import {
   Hotel, 
   Pool,
   Wifi,
-  AcUnit
+  AcUnit,
+  Bathtub
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useMyContext } from '../context/MyContext';
@@ -65,7 +66,6 @@ const HoverCardMedia = styled(CardMedia)(({ isHovered }) => ({
   transform: isHovered ? 'scale(1.05)' : 'scale(1)'
 }));
 
-
 const ChaletCard = ({ chalet, inWishlist = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addToWishlist, removeFromWishlist } = useMyContext();
@@ -74,37 +74,25 @@ const ChaletCard = ({ chalet, inWishlist = false }) => {
 
   const handleViewDetails = () => {
     navigate(`/chalet/${chalet._id}`);
-  };
+  };  
 
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
-    if (inWishlist) {
-      removeFromWishlist(chalet._id);
-    } else {
-      addToWishlist(chalet);
-    }
+    inWishlist ? removeFromWishlist(chalet._id) : addToWishlist(chalet);
   };
 
   // Function to render featured amenities icons
-const renderFeatureIcons = (features) => {
-  const iconMap = {
-    'pool': <Pool fontSize="small" />,
-    'wifi': <Wifi fontSize="small" />,
-    'ac': <AcUnit fontSize="small" />
-  };
+  const renderFeatureIcons = (features) => {
+    const iconMap = {
+      'pool': <Pool fontSize="small" />, 
+      'wifi': <Wifi fontSize="small" />, 
+      'ac': <AcUnit fontSize="small" />
+    };
     return features.slice(0, 3).map((feature, index) => (
       <Tooltip key={index} title={feature.name || feature} arrow>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          mr: 2, 
-          color: 'primary.main',
-          '& svg': { mr: 0.5 }
-        }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mr: 2, color: 'primary.main', '& svg': { mr: 0.5 } }}>
           {iconMap[feature.code] || null}
-          <Typography variant="caption">
-            {feature.name || feature}
-          </Typography>
+          <Typography variant="caption">{feature.name || feature}</Typography>
         </Box>
       </Tooltip>
     ));
@@ -126,7 +114,6 @@ const renderFeatureIcons = (features) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <ImageContainer>
-        {/* Price Tag */}
         <PriceTag>
           <Typography component="span" fontWeight="bold">
             {chalet.price} ج.م
@@ -136,7 +123,6 @@ const renderFeatureIcons = (features) => {
           </Typography>
         </PriceTag>
 
-        {/* Wishlist button
         <IconButton
           sx={{
             position: 'absolute',
@@ -149,12 +135,8 @@ const renderFeatureIcons = (features) => {
           }}
           onClick={handleWishlistToggle}
         >
-          {inWishlist ? (
-            <Favorite color="error" />
-          ) : (
-            <FavoriteBorder />
-          )}
-        </IconButton> */}
+          {inWishlist ? <Favorite color="error" /> : <FavoriteBorder />}
+        </IconButton>
 
         <HoverCardMedia
           component="img"
@@ -175,7 +157,7 @@ const renderFeatureIcons = (features) => {
           </Typography>
           <LocationOn color="primary" fontSize="small" sx={{ mr: 0.5 }} />
         </Box>
-        
+       
         <Stack direction="row" spacing={2} sx={{ mb: 2, justifyContent: 'flex-end', textAlign: 'right' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2">{chalet.bedrooms} غرفة</Typography>
@@ -185,13 +167,16 @@ const renderFeatureIcons = (features) => {
             <Typography variant="body2">{chalet.guests} ضيف</Typography>
             <Person color="primary" fontSize="small" sx={{ mr: 0.5 }} />
           </Box>
-        </Stack>
-        
-        {chalet.features && chalet.features.length > 0 && (
-          <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
-            {renderFeatureIcons(chalet.features)}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2">{chalet.bathrooms} حمام</Typography>
+            <Bathtub color="primary" fontSize="small" sx={{ mr: 0.5 }} />
           </Box>
-        )}
+        </Stack>
+      
+        <Typography variant="body2">
+          كود  : {chalet.code}
+        </Typography>
+      
       </CardContent>
       
       <Box sx={{ p: 2, pt: 0 }}>

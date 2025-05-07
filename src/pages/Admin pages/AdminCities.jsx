@@ -112,7 +112,6 @@ const AdminCities = () => {
   const validateForm = () => {
     const errors = {};
     if (!cityForm.name.trim()) errors.name = 'اسم المدينة مطلوب';
-    if (!cityForm.description.trim()) errors.description = 'وصف المدينة مطلوب';
     if (!isEditing && !cityForm.image) errors.image = 'صورة المدينة مطلوبة';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;

@@ -69,6 +69,7 @@ const Header = () => {
     { text: 'البحث',      icon: <FilterAlt />,          path: '/filter' },
     { text: 'المدن',      icon: <LocationCityIcon />,   path: '/cities' },
     { text: 'القرى',      icon: <HolidayVillageIcon />, path: '/villages' },
+    { text: 'المفضلة',      icon: <Favorite />, path: '/wishlist' },
     { text: 'تواصل معنا', icon: <ContactSupportIcon />,path: '/contact' },
   ];
 

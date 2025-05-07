@@ -21,7 +21,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ChaletDetails from './pages/ChaletDetails';
 // import Cart from './pages/Cart';
-import WishList from './pages/WishList';
 import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 
@@ -35,6 +34,7 @@ import VillagesPage from './pages/VillagesPage';
 import Chalets from './pages/Chalets';
 import ContactUs from './pages/ContactUs';
 import ProfilePage from './pages/Profile';
+import WishlistPage from './pages/WishList';
 
 // Create RTL cache
 const cacheRtl = createCache({
@@ -141,7 +141,7 @@ function App() {
               <Route path="/cities" element={<CitiesPage />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/villages" element={<VillagesPage />} />
-              <Route path="/wishlist" element={<WishList />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/login-admin" element={<AdminLogin/>} />

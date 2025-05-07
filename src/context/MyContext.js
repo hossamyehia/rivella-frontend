@@ -36,12 +36,11 @@ export const MyContextProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       fetchUserProfile(token);
+      fetchWishlist(token); // Fetch wishlist when component mounts if user is logged in
     } else {
-      // Load cart and wishlist from localStorage if user is not logged in
+      // Load cart from localStorage if user is not logged in
       const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-      const savedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
       setCart(savedCart);
-      setWishlist(savedWishlist);
     }
   }, []);
 
@@ -55,24 +54,34 @@ export const MyContextProvider = ({ children }) => {
     }
   }, [isLogin]);
 
-  // Save cart and wishlist to localStorage when they change
+  // Save cart to localStorage when it changes
   useEffect(() => {
     if (!isLogin) {
       localStorage.setItem('cart', JSON.stringify(cart));
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
     }
-  }, [cart, wishlist, isLogin]);
+  }, [cart, isLogin]);
 
   const fetchUserProfile = async (token) => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get('/user/profile',{headers:{token}});
+      const response = await axiosInstance.get('/user/profile', {headers: {token}});
       setUserData(response.data.data);
       setIsLogin(true);
-      
-      
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch wishlist from API
+  const fetchWishlist = async (token) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.get('/wishlist', {headers: {token}});
+      setWishlist(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +95,7 @@ export const MyContextProvider = ({ children }) => {
       
       localStorage.setItem('token', token);
       await fetchUserProfile(token);
+      await fetchWishlist(token); // Fetch wishlist after successful login
       
       Swal.fire({
         icon: 'success',
@@ -212,39 +222,106 @@ export const MyContextProvider = ({ children }) => {
     });
   };
 
-  const addToWishlist = (chalet) => {
-    // Check if chalet is already in wishlist
-    if (!wishlist.some(item => item.chaletId === chalet.id)) {
-      setWishlist([...wishlist, {
-        chaletId: chalet.id,
-        chalet: {
-          id: chalet.id,
-          name: chalet.name,
-          price: chalet.price,
-          mainImg: chalet.mainImg,
-          city: chalet.city,
-          village: chalet.village
-        }
-      }]);
+  const addToWishlist = async(chalet) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'يجب عليك تسجيل الدخول اولا',
+        timer: 1500,
+      });
+      return;
+    }
+
+    try {
+      await axiosInstance.post(`/wishlist/${chalet._id}`, {}, {headers: {token}});
+      await fetchWishlist(token); // Refresh wishlist after adding item
       
       Swal.fire({
         icon: 'success',
         title: 'تمت الإضافة للمفضلة',
+        timer: 1000,
+      });
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        Swal.fire({
+          icon: 'info',
+          title: 'الشالية بالفعل في المفضلة',
+          timer: 1000,
+        });
+      } else if (error.response && error.response.data.message === "invaild token") {
+        Swal.fire({
+          icon: 'error',
+          title: 'يجب عليك تسجيل الدخول اولا',
+          timer: 1500,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'حدث خطأ ما',
+          timer: 1500,
+        });
+      }
+    }
+  };
+
+  const removeFromWishlist = async(chalet) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'يجب عليك تسجيل الدخول اولا',
         timer: 1500,
-        showConfirmButton: false
+      });
+      return;
+    }
+
+    try {
+      await axiosInstance.delete(`/wishlist/${chalet._id}`, {headers: {token}});
+      await fetchWishlist(token); // Refresh wishlist after removing item
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'تم الحذف من المفضلة',
+        timer: 1500,
+      });
+    } catch (error) { 
+      Swal.fire({
+        icon: 'error',
+        title: 'حدث خطأ ما',
+        timer: 1500,
       });
     }
   };
 
-  const removeFromWishlist = (chaletId) => {
-    setWishlist(wishlist.filter(item => item.chaletId !== chaletId));
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'تمت الإزالة من المفضلة',
-      timer: 1500,
-      showConfirmButton: false
-    });
+  // New function to clear all wishlist items
+  const clearWishlist = async() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'يجب عليك تسجيل الدخول اولا',
+        timer: 1500,
+      });
+      return;
+    }
+
+    try {
+      await axiosInstance.delete('/wishlist', {headers: {token}});
+      setWishlist([]); // Clear wishlist state
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'تم حذف جميع العناصر من المفضلة',
+        timer: 1000,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'حدث خطأ أثناء حذف المفضلة',
+        timer: 1500,
+      });
+    }
   };
 
   const applyCoupon = async (code, chaletId, totalPrice) => {
@@ -334,19 +411,18 @@ export const MyContextProvider = ({ children }) => {
     }
   };
 
-  
-  const checkAdmin=async(token)=>{
+  const checkAdmin = async(token) => {
     try {
-      const res=await axiosInstance.get(`/admin/is-admin`,{headers:{token}})
-      if(res.data.success){
-        return true
-      }else {
-        return false
+      const res = await axiosInstance.get(`/admin/is-admin`, {headers: {token}});
+      if(res.data.success) {
+        return true;
+      } else {
+        return false;
       }      
     } catch (error) {
-      return false
+      return false;
     }
-  }
+  };
   
   // Export context values and functions
   const contextValue = {
@@ -367,10 +443,12 @@ export const MyContextProvider = ({ children }) => {
     removeFromCart,
     addToWishlist,
     removeFromWishlist,
+    clearWishlist,
+    fetchWishlist,
     applyCoupon,
     updateFilters,
     resetFilters,
-    createBooking ,
+    createBooking,
     checkAdmin
   };
 
@@ -380,5 +458,3 @@ export const MyContextProvider = ({ children }) => {
     </MyContext.Provider>
   );
 };
-
-// export default MyContext;
