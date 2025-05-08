@@ -231,7 +231,7 @@ const Home = () => {
       clearInterval(slideInterval.current);
       slideInterval.current = setInterval(() => {
         setCurrentSlide((prevSlide) => (prevSlide + 1) % heroSlides.length);
-      }, 5000);
+      }, 10000);
     }
   };
 
@@ -674,7 +674,7 @@ const Home = () => {
               spaceBetween={25}
               slidesPerView={isMobile ? 1 : 4}
               
-              autoplay={{ delay: 1000, disableOnInteraction: false }}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
               loop={true}
               style={{ padding: '10px 5px 40px' }}
             >
@@ -696,7 +696,7 @@ const Home = () => {
         {/* Welcome Section */}
         <Box mb={8} textAlign="center">
           <Typography variant="h3" component="h2" gutterBottom fontWeight="bold" color="primary">
-            مرحباً بك في ريڤيلا للشاليهات
+          مرحباً بك في Rivella Explore
           </Typography>
           <Typography variant="h6" component="p" color="text.secondary" mb={4} sx={{ maxWidth: '800px', mx: 'auto' }}>
             استمتع بتجربة فريدة من نوعها مع أفضل الشاليهات في المملكة. نوفر لك خيارات متنوعة تناسب جميع الأذواق والميزانيات.
@@ -797,10 +797,10 @@ const Home = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <Typography variant="h4" component="h2" gutterBottom color="primary" fontWeight="bold">
-              لماذا تختار ريڤيلا للشاليهات؟
+              لماذا تختار Rivella Explore؟
             </Typography>
             <Typography variant="body1" paragraph>
-              تقدم منصة ريڤيلا للشاليهات تجربة حجز سلسة وآمنة مع أفضل الخيارات في جميع أنحاء المملكة.
+              تقدم منصة Rivella Explore تجربة حجز سلسة وآمنة مع أفضل الخيارات في جميع أنحاء مصر.
             </Typography>
             <Typography variant="body1" paragraph>
               نسعى دائمًا لتقديم خدمة متميزة تضمن لك قضاء أوقات لا تُنسى مع العائلة والأصدقاء في أجمل الشاليهات والاستراحات.
@@ -808,7 +808,7 @@ const Home = () => {
             <Box mt={3}>
               <Button 
                 component={Link} 
-                to="/about" 
+                to="/contact" 
                 variant="contained" 
                 color="primary"
                 sx={{ 

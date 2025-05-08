@@ -173,14 +173,14 @@ const AdminVillages = () => {
         const response = await axiosInstance.put(`/village/${selectedVillageId}`, formData, { headers: { token: localStorage.getItem('token') } });
         const updated = response.data.data;
         // Make sure to add the id field for DataGrid
-        updated.id = updated._id;
+        updated._id = updated._id;
         setVillages(villages.map(v => (v._id === selectedVillageId ? updated : v)));
         Swal.fire({ title: 'تم التعديل', text: 'تم تعديل القرية بنجاح', icon: 'success', confirmButtonText: 'حسناً' });
       } else {
         const response = await axiosInstance.post('/village', formData, { headers: { token: localStorage.getItem('token') } });
         const created = response.data.data;
         // Make sure to add the id field for DataGrid
-        created.id = created._id;
+        created._id = created._id;
         setVillages([...villages, created]);
         Swal.fire({ title: 'تمت الإضافة', text: 'تم إضافة القرية بنجاح', icon: 'success', confirmButtonText: 'حسناً' });
       }
@@ -196,7 +196,7 @@ const AdminVillages = () => {
   // Function to safely get city name
   const getCityName = (cityId) => {
     if (!cityId) return '';
-    const city = cities.find(c => c.id === cityId || c._id === cityId);
+    const city = cities.find(c => c._id === cityId || c._id === cityId);
     return city ? city.name : '';
   };
 
@@ -266,7 +266,7 @@ const AdminVillages = () => {
           rowsPerPageOptions={[8, 16, 24]}
           disableSelectionOnClick
           loading={loading}
-          getRowId={(row) => row.id || row._id}
+          getRowId={(row) => row._id || row._id}
           sx={{ 
             '& .MuiDataGrid-columnHeaders': { 
               backgroundColor: 'primary.main', 
@@ -340,7 +340,7 @@ const AdminVillages = () => {
                   sx={{ fontSize: '16px', height: '56px' }}
                 >
                   {cities.map(city => (
-                    <MenuItem key={city.id} value={city.id} sx={{ fontSize: '16px' }}>{city.name}</MenuItem>
+                    <MenuItem key={city._id} value={city._id} sx={{ fontSize: '16px' }}>{city.name}</MenuItem>
                   ))}
                 </Select>
                 {formErrors.cityId && <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block', fontSize: '14px' }}>{formErrors.cityId}</Typography>}

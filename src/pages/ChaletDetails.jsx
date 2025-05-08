@@ -529,6 +529,44 @@ const ChaletDetails = () => {
                 </Box>
               </Grid>
             </Grid>
+        {/* فيديو الشاليه */}
+{chalet.video && (
+  <Box mb={4}>
+    <Typography
+      variant="h6"
+      color="primary"
+      gutterBottom
+      fontWeight="bold"
+    >
+      فيديو الشاليه
+    </Typography>
+    <Box
+      sx={{
+        position: 'relative',
+        width: '100%',
+        // نسبة الارتفاع = 9/16 = 56.25%
+        paddingTop: '56.25%',
+        borderRadius: 1,
+        overflow: 'hidden',
+      }}
+    >
+      <Box
+        component="video"
+        src={chalet.video}
+        controls
+        preload="metadata"
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
+      />
+    </Box>
+  </Box>
+)}
+
 
             {/* تفاصيل غرف النوم */}
             {chalet.badroomsDetails && chalet.badroomsDetails.length > 0 && (
@@ -553,25 +591,43 @@ const ChaletDetails = () => {
             )}
 
             {/* المميزات */}
-            {chalet.features && chalet.features.length > 0 && (
-              <Box mb={4}>
-                <Typography variant="h6" color="primary" gutterBottom fontWeight="bold">
-                  المميزات
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {chalet.features.map((feature) => (
-                    <FeatureChip
-                      key={feature._id}
-                      icon={<CheckCircleIcon />}
-                      label={feature.name}
-                      color="primary"
-                      variant="outlined"
-                      title={feature.description}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
+    {chalet.features && chalet.features.length > 0 && (
+      <Box mb={4}>
+        <Typography variant="h6" color="primary" gutterBottom fontWeight="bold">
+          المميزات
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          {chalet.features.map((feature) => (
+            <Box
+              key={feature._id}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: 100,       // يمكنك تعديل العرض حسب الحاجة
+                textAlign: 'center'
+              }}
+            >
+              <FeatureChip
+                icon={<CheckCircleIcon />}
+                label={feature.name}
+                color="primary"
+                variant="outlined"
+                // tooltip على الشريحة عند المرور بالماوس
+                title={feature.description}
+              />
+              <Typography
+                variant="caption"
+                color="textSecondary"
+                sx={{ mt: 0.5 }}
+              >
+                {feature.description}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    )}
 
             {/* قواعد المكان */}
             {chalet.terms && chalet.terms.length > 0 && (
@@ -595,10 +651,45 @@ const ChaletDetails = () => {
               </Box>
             )}
           </Box>
-        </Grid>
+                                {/* الوصف العام للشاليه */}
 
+                                {chalet.description && (
+  <Box mb={4}>
+    <Typography
+      variant="h6"
+      color="primary"
+      gutterBottom
+      fontWeight="bold"
+    >
+      الوصف
+    </Typography>
+
+    {/* حاوية مظللة أو مؤطرة */}
+    <Box
+      sx={{
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        p: 2,
+        bgcolor: 'background.paper',
+      }}
+    >
+      <Typography
+        variant="body1"
+        color="textSecondary"
+        lineHeight={1.6}
+      >
+        {chalet.description}
+      </Typography>
+    </Box>
+  </Box>
+)}
+        </Grid>
+  
         {/* قسم الحجز - على اليمين وثابت أثناء التمرير */}
-        <Grid item xs={12} md={4} sx={{ order: { xs: 1, md: 2 } }}>
+      
+      </Grid>
+      <Grid  >
           <BookingPanel>
             <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
               <Typography variant="h5" color="primary" fontWeight="bold">
@@ -728,8 +819,6 @@ const ChaletDetails = () => {
             </Button>
           </BookingPanel>
         </Grid>
-      </Grid>
-
       {/* نافذة التقويم */}
       <Dialog
         open={isCalendarOpen}
@@ -769,7 +858,7 @@ const ChaletDetails = () => {
           </LocalizationProvider>
         </DialogContent>
       </Dialog>
-
+  
       {/* نافذة تأكيد الحجز */}
       <Dialog
         open={confirmationOpen}

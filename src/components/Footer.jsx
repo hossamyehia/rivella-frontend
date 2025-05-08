@@ -1,4 +1,3 @@
-
 // src/components/Footer.js
 import React from 'react';
 import { 
@@ -13,9 +12,8 @@ import {
 } from '@mui/material';
 import { 
   Facebook,
-  Twitter,
   Instagram,
-  LinkedIn,
+  MusicVideo,
   Phone,
   Email,
   LocationOn
@@ -26,6 +24,13 @@ import { useTheme } from '@mui/material/styles';
 const Footer = () => {
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
+
+  // الروابط الجديدة
+  const socialLinks = {
+    facebook: 'https://www.facebook.com/share/14jM49Sv4Q/',
+    instagram: 'https://www.instagram.com/rivellaexplore?igsh=MWN5M2UzMzg1em92aA==',
+    tiktok: 'https://www.tiktok.com/@rivella.explore?_t=ZS-8w1mt8Cl4Of&_r=1',
+  };
 
   return (
     <Box sx={{ 
@@ -39,23 +44,44 @@ const Footer = () => {
           {/* Company Info */}
           <Grid item xs={12} sm={6} md={4}>
             <Typography variant="h6" color="primary" gutterBottom>
-              ريفيلا للشاليهات
+              Rivella Explore
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
               أفضل موقع لحجز الشاليهات في المملكة، نوفر لك تجربة استثنائية للعطلات ودعم على مدار الساعة لضمان راحتك.
             </Typography>
             <Stack direction="row" spacing={1}>
-              <IconButton size="small" aria-label="facebook" color="primary">
+              <IconButton
+                component="a"
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="facebook"
+                color="primary"
+                size="small"
+              >
                 <Facebook />
               </IconButton>
-              <IconButton size="small" aria-label="twitter" color="primary">
-                <Twitter />
-              </IconButton>
-              <IconButton size="small" aria-label="instagram" color="primary">
+              <IconButton
+                component="a"
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="instagram"
+                color="primary"
+                size="small"
+              >
                 <Instagram />
               </IconButton>
-              <IconButton size="small" aria-label="linkedin" color="primary">
-                <LinkedIn />
+              <IconButton
+                component="a"
+                href={socialLinks.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="tiktok"
+                color="primary"
+                size="small"
+              >
+                <MusicVideo />
               </IconButton>
             </Stack>
           </Grid>
@@ -82,7 +108,6 @@ const Footer = () => {
               >
                 البحث عن شاليه
               </Link> 
-            
               <Link 
                 component={RouterLink} 
                 to="/cities" 
@@ -117,13 +142,13 @@ const Footer = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Email color="primary" sx={{ ml: 1 }} />
                 <Typography variant="body2">
-                  info@rivella.sa
+                  rivellaexplore1@gmail.com
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Phone color="primary" sx={{ ml: 1 }} />
                 <Typography variant="body2">
-                  +966 12 345 6789
+                  01107973962
                 </Typography>
               </Box>
             </Stack>
@@ -135,7 +160,7 @@ const Footer = () => {
         {/* Copyright */}
         <Box sx={{ textAlign: 'center', pt: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            جميع الحقوق محفوظة © {currentYear} ريفيلا للشاليهات
+            جميع الحقوق محفوظة © {currentYear} Rivella Explore
           </Typography>
         </Box>
       </Container>

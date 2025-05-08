@@ -5,7 +5,6 @@ import {
   AppBar,
   Box,
   Toolbar,
-  Typography,
   Button,
   IconButton,
   Menu,
@@ -18,7 +17,8 @@ import {
   Divider,
   ListItemText,
   ListItem,
-  ListItemButton
+  ListItemButton,
+  Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -29,13 +29,14 @@ import {
   FilterAlt,
   Favorite,
   Login,
-  Dashboard,
   LocationCity as LocationCityIcon,
   HolidayVillage as HolidayVillageIcon,
   ContactSupport as ContactSupportIcon,
   PersonAdd
 } from '@mui/icons-material';
 import { useMyContext } from '../context/MyContext';
+// استيراد اللوجو من نفس المجلد
+import logo from './logo.png';
 
 const Header = () => {
   const { isLogin, userData, logout } = useMyContext();
@@ -46,18 +47,9 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-  
+  const handleMenu = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+  const handleDrawerToggle = () => setMobileOpen(open => !open);
   const handleLogout = () => {
     logout();
     handleClose();
@@ -69,21 +61,27 @@ const Header = () => {
     { text: 'البحث',      icon: <FilterAlt />,          path: '/filter' },
     { text: 'المدن',      icon: <LocationCityIcon />,   path: '/cities' },
     { text: 'القرى',      icon: <HolidayVillageIcon />, path: '/villages' },
-    { text: 'المفضلة',      icon: <Favorite />, path: '/wishlist' },
+    { text: 'المفضلة',    icon: <Favorite />,           path: '/wishlist' },
     { text: 'تواصل معنا', icon: <ContactSupportIcon />,path: '/contact' },
   ];
 
-  // Drawer content for mobile
   const drawerContent = (
     <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.main }}>
-          ريفيلا للشاليهات
-        </Typography>
+        <Box
+          component="img"
+          src={logo}
+          alt="ريفــيلا للشاليهات"
+          sx={{
+            height: 80,
+            width: 'auto',
+          }}
+        />
+       
       </Box>
       <Divider />
       <List>
-        {menuItems.map((item) => (
+        {menuItems.map(item => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton component={RouterLink} to={item.path}>
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -91,7 +89,6 @@ const Header = () => {
             </ListItemButton>
           </ListItem>
         ))}
-
         {!isLogin && (
           <>
             <ListItem disablePadding>
@@ -108,7 +105,6 @@ const Header = () => {
             </ListItem>
           </>
         )}
-
         {isLogin && (
           <>
             <ListItem disablePadding>
@@ -130,25 +126,53 @@ const Header = () => {
   );
 
   return (
-    <AppBar position="sticky" color="default" sx={{ backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+    <AppBar 
+      position="sticky" 
+      color="default" 
+      sx={{ backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+    >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Logo */}
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontWeight: 700,
-              color: theme.palette.primary.main,
-              textDecoration: 'none',
-            }}
-          >
-            ريفيلا للشاليهات
-          </Typography>
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: { xs: 80, md: 100 },
+            px: { xs: 1, md: 2 }
+          }}
+        >
+          {/* Logo + Title Desktop */}
+          {!isMobile && 
+             <Box
+             component={RouterLink}
+             to="/"
+             sx={{
+               display: 'flex',
+               alignItems: 'center',          // توسيط عرضي
+               justifyContent: 'center',      // توسيط عمودي
+               textDecoration: 'none',
+               height: '100%',                // ياخد كامل ارتفاع الأب (Toolbar مثلاً)
+               px: 2,                         // مسافة أفقية صغيرة
+             }}
+           >
+             <Typography
+               variant="h6"
+               sx={{
+                 color: theme.palette.primary.main,
+                 fontWeight: 'bold',
+                 mb: 1  ,
+                 mt:4                      // مسافة بين النص والصورة
+               }}
+             >
+               Rivella Explore
+             </Typography>
+             <Box
+               component="img"
+               src={logo}
+               alt="ريفــيلا للشاليهات"
+               sx={{ height: 60 }}
+             />
+           </Box>
+           
+          }
 
           {/* Mobile menu */}
           {isMobile && (
@@ -159,7 +183,7 @@ const Header = () => {
                 color="inherit"
                 aria-label="menu"
                 onClick={handleDrawerToggle}
-                sx={{ ml: 2 }}
+                sx={{ mr: 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -170,22 +194,35 @@ const Header = () => {
               >
                 {drawerContent}
               </Drawer>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ flexGrow: 1, textAlign: 'center', color: theme.palette.primary.main }}
+              {/* Logo Mobile */}
+              <Box
+                component={RouterLink}
+                to="/"
+                sx={{
+                  flexGrow: 1,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  textDecoration: 'none',
+                }}
               >
-                ريفيلا للشاليهات
-              </Typography>
+                <Box
+                  component="img"
+                  src={logo}
+                  alt="ريفــيلا للشاليهات"
+                  sx={{
+                    height: 80,
+                    width: 'auto',
+                  }}
+                />
+              </Box>
             </>
           )}
 
-          {/* Desktop menu */}
+          {/* Desktop menu items */}
           {!isMobile && (
             <>
               <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                {menuItems.map((item) => (
+                {menuItems.map(item => (
                   <Button
                     key={item.text}
                     component={RouterLink}
@@ -220,11 +257,7 @@ const Header = () => {
                         الحساب الشخصي
                       </MenuItem>
                       {userData?.role === 'admin' && (
-                        <MenuItem 
-                          component={RouterLink} 
-                          to="/admin"
-                          onClick={handleClose}
-                        >
+                        <MenuItem component={RouterLink} to="/admin" onClick={handleClose}>
                           لوحة الإدارة
                         </MenuItem>
                       )}

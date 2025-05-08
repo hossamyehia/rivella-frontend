@@ -176,7 +176,7 @@ export const MyContextProvider = ({ children }) => {
 
   const addToCart = (chalet, startDate, endDate) => {
     // Check if chalet is already in cart
-    const existingIndex = cart.findIndex(item => item.chaletId === chalet.id);
+    const existingIndex = cart.findIndex(item => item.chaletId === chalet._id);
     
     if (existingIndex !== -1) {
       // Update existing item
@@ -190,9 +190,9 @@ export const MyContextProvider = ({ children }) => {
     } else {
       // Add new item
       setCart([...cart, {
-        chaletId: chalet.id,
+        chaletId: chalet._id,
         chalet: {
-          id: chalet.id,
+          id: chalet._id,
           name: chalet.name,
           price: chalet.price,
           mainImg: chalet.mainImg
@@ -235,7 +235,7 @@ export const MyContextProvider = ({ children }) => {
 
     try {
       await axiosInstance.post(`/wishlist/${chalet._id}`, {}, {headers: {token}});
-      await fetchWishlist(token); // Refresh wishlist after adding item
+      await fetchWishlist(token);
       
       Swal.fire({
         icon: 'success',

@@ -20,7 +20,7 @@ const FilterPanel = () => {
   const { axiosInstance, filters, updateFilters, resetFilters } = useMyContext();
   const [cities, setCities] = useState([]);
   const [villages, setVillages] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [loading, setLoading] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
 
@@ -154,7 +154,7 @@ const FilterPanel = () => {
           onChangeCommitted={handlePriceChange}
           valueLabelDisplay="auto"
           min={0}
-          max={5000}
+          max={100000}
           step={100}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>

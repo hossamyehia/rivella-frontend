@@ -19,6 +19,9 @@ import {
   Grid,
   Chip
 } from '@mui/material';
+import EmailIcon from '@mui/icons-material/Email';
+import CallIcon from '@mui/icons-material/Call';
+import logo from "../components/logo.png"
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import PrintIcon from '@mui/icons-material/Print';
@@ -274,7 +277,57 @@ const Checkout = () => {
               </Grid>
             </Grid>
             
-            <Alert severity="success" sx={{ mt: 3 }}>
+
+
+          {/* Transfer instructions */}
+          <Alert severity="info" sx={{ mb:3 }}>
+                  <Typography variant="subtitle2">لتحويل الأموال:</Typography>
+                  <Typography>رقم الحساب: <b>0123456789</b></Typography>
+                  <Typography>ثم أرسل لنا صورة التحويل على الواتس.</Typography>
+                </Alert>
+
+
+
+
+              
+
+
+
+
+         
+
+
+
+
+            <Box
+    sx={{
+      textAlign: 'center',
+      mt: 2,
+      px: 2
+    }}
+  >
+    <Box
+      component="img"
+      src={logo}
+      alt="Rivella Explore"
+      sx={{ height: 60, width: 'auto', mb: 1, mx: 'auto' }}
+    />
+    <Typography variant="h6" fontWeight="bold" color="primary.main">
+      Rivella Explore
+    </Typography>
+    <Typography variant="body2" sx={{ mt: 0.5 }}>
+      <EmailIcon fontSize="small" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+      rivellaexplore1@gmail.com
+    </Typography>
+    <Typography variant="body2">
+      <CallIcon fontSize="small" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+      01107973962
+    </Typography>
+    <Typography variant="subtitle2" sx={{ mt: 2 }} color="text.secondary">
+      شكرًا لتعاملك مع شركة Rivella Explore
+    </Typography>
+  </Box>
+  <Alert severity="success" sx={{ mt: 3 }}>
               تم إرسال بيانات الطلب على بريدك الإلكتروني.
             </Alert>
             
@@ -290,6 +343,7 @@ const Checkout = () => {
               </Button>
             </Box>
           </Card>
+
         </Container>
       </>
     );

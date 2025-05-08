@@ -111,14 +111,14 @@ const AdminBookings = () => {
 
   const handleViewClick = (booking) => {
     // Find original booking with all data
-    const originalBooking = bookings.find(b => b._id === booking.id || b._id === booking._id);
+    const originalBooking = bookings.find(b => b._id === booking._id || b._id === booking._id);
     setSelectedBooking(originalBooking || booking);
     setViewDialogOpen(true);
   };
 
   const handleStatusUpdateClick = (booking, newStatus) => {
     // Find original booking with all data
-    const originalBooking = bookings.find(b => b._id === booking.id || b._id === booking._id);
+    const originalBooking = bookings.find(b => b._id === booking._id || b._id === booking._id);
     setSelectedBooking({...(originalBooking || booking), newStatus});
     setStatusReason('');
     setStatusErrors({});
@@ -375,7 +375,7 @@ const AdminBookings = () => {
         <DataGrid
           rows={formattedBookings}
           columns={columns}
-          getRowId={(row) => row.id || row._id}
+          getRowId={(row) => row._id || row._id}
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
           disableSelectionOnClick
