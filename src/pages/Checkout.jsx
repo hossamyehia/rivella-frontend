@@ -282,7 +282,7 @@ const Checkout = () => {
           {/* Transfer instructions */}
           <Alert severity="info" sx={{ mb:3 }}>
                   <Typography variant="subtitle2">لتحويل الأموال:</Typography>
-                  <Typography>رقم الحساب: <b>0123456789</b></Typography>
+                  <Typography>رقم الحساب: <b>01107973962</b></Typography>
                   <Typography>ثم أرسل لنا صورة التحويل على الواتس.</Typography>
                 </Alert>
 
@@ -440,7 +440,7 @@ const Checkout = () => {
             {/* Transfer instructions */}
             <Alert severity="info" sx={{ mb:3 }}>
               <Typography variant="subtitle2">لتحويل الأموال:</Typography>
-              <Typography>رقم الحساب: <b>0123456789</b></Typography>
+              <Typography>رقم الحساب: <b>01107973962</b></Typography>
               <Typography>ثم أرسل لنا صورة التحويل على الواتس.</Typography>
             </Alert>
 
