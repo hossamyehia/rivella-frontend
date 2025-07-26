@@ -2,14 +2,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import Loader from '../components/Loader';
-import { MyContext } from '../context/MyContext';
+import { useApiContext } from '../context/ApiContext';
 
 const AdminRoute = ({ children }) => {
   const [status, setStatus] = useState({
     loading: true,
     isAdmin: false,
   });
-  const { axiosInstance } = useContext(MyContext);
+  const { axiosInstance } = useApiContext();
 
   // local copy of your checkAdmin logic
   const checkAdmin = async (token) => {

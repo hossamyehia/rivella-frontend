@@ -7,34 +7,13 @@ import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
 
 // Context Provider
-import { MyContextProvider } from './context/MyContext';
-
-// Components
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Loader from './components/Loader';
-
-// Pages
-import Home from './pages/Home';
-import Filter from './pages/Filter';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ChaletDetails from './pages/ChaletDetails';
-// import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import AdminDashboard from './pages/AdminDashboard';
+import AppContextProvider from './context/AppContextProvider';
 
 // Routes
-import PrivateRoute from './routes/PrivateRoute';
-import AdminRoute from './routes/AdminRoute';
-import VerifyEmail from './pages/VerifyEmail';
-import AdminLogin from './pages/AdminLogin';
-import CitiesPage from './pages/CitiesPage';
-import VillagesPage from './pages/VillagesPage';
-import Chalets from './pages/Chalets';
-import ContactUs from './pages/ContactUs';
-import ProfilePage from './pages/Profile';
-import WishlistPage from './pages/WishList';
+import NotFoundPage from './pages/NotFoundPage';
+import AdminPortal from './pages/admin-portal';
+import UserPortal from './pages/user-portal';
+import GuestPortal from './pages/guest-portal';
 
 // Create RTL cache
 const cacheRtl = createCache({
@@ -48,9 +27,11 @@ const theme = createTheme({
   palette: {
     primary: {
       main: 'rgb(255, 107, 16)',
+      contrastText: '#fff',
     },
     secondary: {
-      main: '#87CEEB', // Light sky blue
+      main: '#87CEEB',
+      text: "#131D21" // Light sky blue
     },
   },
   typography: {
@@ -127,29 +108,16 @@ function App() {
   return (
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
-        <MyContextProvider>
+        <AppContextProvider>
           <BrowserRouter>
-            <Header />
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/filter" element={<Filter />} />
-              <Route path="/verify-email" element={<VerifyEmail />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/chalets" element={<Chalets />} />
-              <Route path="/chalet/:id" element={<ChaletDetails />} />
-              <Route path="/cities" element={<CitiesPage />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/villages" element={<VillagesPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/login-admin" element={<AdminLogin/>} />
-              <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/*" element={<AdminPortal />} />
+              <Route path="/user/*" element={<UserPortal />} />
+              <Route path="/*" element={<GuestPortal />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
-            <Footer />
           </BrowserRouter>
-        </MyContextProvider>
+        </AppContextProvider>
       </ThemeProvider>
     </CacheProvider>
   );

@@ -10,36 +10,43 @@ import {
   MenuItem,
   Slider,
   Button,
-  Divider
+  Divider,
+  Chip,
+  OutlinedInput
 } from '@mui/material';
 import { FilterAlt, RestartAlt } from '@mui/icons-material';
 import { useMyContext } from '../context/MyContext';
 import Loader from './Loader';
+import { useServicesContext } from '../context/ServicesContext';
+import ChaletSessionStroage from '../pages/guest-portal/services/ChaletSessionStroage.service';
 
 const FilterPanel = () => {
-  const { axiosInstance, filters, updateFilters, resetFilters } = useMyContext();
+  // const { axiosInstance, isLoading, setIsLoading } = useApiContext();
+  const { services, isLoading } = useServicesContext();
+  const { filters, updateFilters, resetFilters } = useMyContext();
+  const _ChaletSessionStroage = ChaletSessionStroage();
   const [cities, setCities] = useState([]);
   const [villages, setVillages] = useState([]);
+  const [features, setFeatures] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 100000]);
-  const [loading, setLoading] = useState(false);
+  // const [ loading, setLoading ] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
 
-  // Fetch cities once on mount
   useEffect(() => {
-    const fetchCities = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axiosInstance.get('/city');
-        if (data.success) setCities(data.data);
-      } catch (e) {
-        console.error('Error fetching cities:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCities();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    (async () => {
+      const [cityRes, featureRes] = await Promise.all([
+        services["LookupsService"]["getCities"](),
+        services["LookupsService"]["getFeatures"](),
+      ])
+
+      if (!cityRes.success) return;
+      setCities(cityRes.data.data);
+
+      if (!featureRes.success) return;
+      setFeatures(featureRes.data.data);
+
+    })()
+  }, [])
 
   // Fetch villages when selected city changes
   useEffect(() => {
@@ -47,34 +54,58 @@ const FilterPanel = () => {
       setVillages([]);
       return;
     }
-    const fetchVillages = async () => {
+    (async () => {
       setLoadingVillages(true);
-      try {
-        const { data } = await axiosInstance.get('/village');
-        if (data.success) {
-          setVillages(data.data.filter(v => v.city._id === filters.city));
-        }
-      } catch (e) {
-        console.error('Error fetching villages:', e);
+      const { success, data } = await services['LookupsService']['getVillages']();
+      if (success) {
+        setVillages(data.data.filter(v => v.city._id === filters.city));
+      } else {
         setVillages([]);
-      } finally {
-        setLoadingVillages(false);
       }
-    };
-    fetchVillages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      setLoadingVillages(false);
+    })();
   }, [filters.city]);
 
-  // Update price range handler
-  const handlePriceChange = (event, newValue) => {
-    setPriceRange(newValue);
-    // Delay updating filters to avoid excessive API calls while sliding
-    if (newValue[0] !== filters.priceMin || newValue[1] !== filters.priceMax) {
-      updateFilters({ priceMin: newValue[0], priceMax: newValue[1] });
+  // Update price range from filters (for initialization from session storage)
+  useEffect(() => {
+    if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
+      setPriceRange([filters.priceMin, filters.priceMax]);
     }
+  }, [filters.priceMin, filters.priceMax]);
+
+  // Save filters whenever they change
+  useEffect(() => {
+    _ChaletSessionStroage.saveFilters(filters);
+  }, [filters]);
+
+  // Handle reset filters
+  const handleResetFilters = () => {
+    // Clear session storage first
+    _ChaletSessionStroage.clear();
+
+    // Reset filters in context
+    resetFilters();
+
+    // Reset local price range state
+    setPriceRange([0, 100000]);
   };
 
-  if (loading) return <Loader />;
+  // Update price range handler with immediate session storage save
+  const handlePriceChange = (event, newValue) => {
+    setPriceRange(newValue);
+    const updatedFilters = { ...filters, priceMin: newValue[0], priceMax: newValue[1] };
+    updateFilters({ priceMin: newValue[0], priceMax: newValue[1] });
+    _ChaletSessionStroage.saveFilters(updatedFilters);
+  };
+
+  // Handle other filter changes with session storage save
+  const handleFilterChange = (filterUpdate) => {
+    const updatedFilters = { ...filters, ...filterUpdate };
+    updateFilters(filterUpdate);
+    _ChaletSessionStroage.saveFilters(updatedFilters);
+  };
+
+  if (isLoading) return <Loader />;
 
   return (
     <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -83,13 +114,11 @@ const FilterPanel = () => {
           <FilterAlt sx={{ mr: 1, verticalAlign: 'middle' }} />
           فلترة البحث
         </Typography>
-        <Button 
-          startIcon={<RestartAlt />} 
-          color="secondary" 
-          onClick={() => { 
-            resetFilters(); 
-            setPriceRange([0, 5000]); 
-          }}
+        <Button
+          startIcon={<RestartAlt />}
+          color="secondary"
+          onClick={handleResetFilters}
+          variant="outlined"
         >
           إعادة ضبط
         </Button>
@@ -103,7 +132,7 @@ const FilterPanel = () => {
           labelId="city-label"
           value={filters.city || ''}
           label="المدينة"
-          onChange={e => updateFilters({ city: e.target.value, village: '' })}
+          onChange={e => handleFilterChange({ city: e.target.value, village: '' })}
         >
           <MenuItem value=""><em>جميع المدن</em></MenuItem>
           {cities.map(c => <MenuItem key={c._id} value={c._id}>{c.name}</MenuItem>)}
@@ -111,9 +140,9 @@ const FilterPanel = () => {
       </FormControl>
 
       {/* Village */}
-      <FormControl 
-        fullWidth 
-        disabled={!filters.city || loadingVillages} 
+      <FormControl
+        fullWidth
+        disabled={!filters.city || loadingVillages}
         sx={{ mb: 2 }}
       >
         <InputLabel id="village-label">القرية/الحي</InputLabel>
@@ -121,13 +150,13 @@ const FilterPanel = () => {
           labelId="village-label"
           value={filters.village || ''}
           label="القرية/الحي"
-          onChange={e => updateFilters({ village: e.target.value })}
+          onChange={e => handleFilterChange({ village: e.target.value })}
         >
           <MenuItem value=""><em>جميع القرى</em></MenuItem>
           {villages.map(v => <MenuItem key={v._id} value={v._id}>{v.name}</MenuItem>)}
         </Select>
       </FormControl>
-      
+
       {/* Bedrooms */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="bedrooms-label">عدد الغرف</InputLabel>
@@ -135,16 +164,50 @@ const FilterPanel = () => {
           labelId="bedrooms-label"
           value={filters.bedrooms || ''}
           label="عدد الغرف"
-          onChange={e => updateFilters({ bedrooms: e.target.value })}
+          onChange={e => handleFilterChange({ bedrooms: e.target.value })}
         >
           <MenuItem value=""><em>الكل</em></MenuItem>
-          {[1,2,3,4,5,6].map(n => (
-            <MenuItem key={n} value={n}>{n} {n===1 ? 'غرفة' : 'غرف'}</MenuItem>
+          {[1, 2, 3, 4, 5, 6].map(n => (
+            <MenuItem key={n} value={n}>{n} {n === 1 ? 'غرفة' : 'غرف'}</MenuItem>
           ))}
           <MenuItem value="7+">7+ غرف</MenuItem>
         </Select>
       </FormControl>
-      
+
+
+      <FormControl fullWidth sx={{mb:2}}>
+        <InputLabel>اختيار المميزات</InputLabel>
+        <Select
+          multiple
+          value={filters.features}
+          onChange={(e) => handleFilterChange({ features: e.target.value })}
+          input={<OutlinedInput label="اختيار المميزات" />}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((id) => {
+                const featureObj = features.find((t) => t._id === id);
+                return (
+                  <Chip
+                    key={id}
+                    label={
+                      `${featureObj?.name || id}`
+                    }
+                    color={'success'}
+                    variant="outlined"
+                  />
+                );
+              })}
+            </Box>
+          )}
+        >
+          {features.map((feature) => (
+            <MenuItem key={feature._id} value={feature._id}>
+              {feature.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       {/* Price Range */}
       <Box sx={{ mt: 3 }}>
         <Typography gutterBottom>نطاق السعر (جنية / ليلة)</Typography>
