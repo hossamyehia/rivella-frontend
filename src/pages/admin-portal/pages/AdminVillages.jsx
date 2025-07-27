@@ -19,10 +19,6 @@ import {
   Select,
   MenuItem,
   Chip,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   ImageList,
   ImageListItem,
   Card,
@@ -163,7 +159,7 @@ const AdminVillages = () => {
       cityId: row.cityId || row.city?._id,
       image: null,
       imagePreview: row.img, // existing main image URL
-      features: row.features.map((value)=> {return { ...value, feature: value.feature._id }}) || [],
+      features: row.features?.map((value)=> {return { ...value, feature: value.feature?._id || "" }}) || [],
       images: [],
       imagesPreviews: row.imgs || [] // existing additional images URLs
     });
@@ -233,51 +229,10 @@ const AdminVillages = () => {
     if (!villageForm.name.trim()) errors.name = 'اسم القرية مطلوب';
     if (!villageForm.cityId) errors.cityId = 'اختيار المدينة مطلوب';
     if (!isEditing && !villageForm.image) errors.image = 'صورة القرية الرئيسية مطلوبة';
-    if (villageForm.features.length <= 0) errors.features = "يرجي اختيار ميزة واحد علي الاقل"
+    // if (villageForm.features.length <= 0) errors.features = "يرجي اختيار ميزة واحد علي الاقل"
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
-  //  const handleFeatureInputChange = (e) => {
-  //     const { name, value } = e.target;
-  //     setFeatureForm({ ...featureForm, [name]: value });
-  //     if (featureErrors[name]) {
-  //       setFeatureErrors({ ...featureErrors, [name]: '' });
-  //     }
-  // };
-  // const validateFeatureForm = () => {
-  //   const errors = {};
-  //   if (!featureForm.name.trim()) errors.name = 'اسم الميزة مطلوب';
-  //   setFeatureErrors(errors);
-  //   return Object.keys(errors).length === 0;
-  // };
-
-  // const handleOpenFeatureDialog = () => {
-  //   setFeatureForm({ name: '', description: '' });
-  //   setFeatureErrors({});
-  //   setFeatureDialogOpen(true);
-  // };
-
-  // const handleAddFeature = () => {
-  //   if (!validateFeatureForm()) return;
-
-  //   setVillageForm({
-  //     ...villageForm,
-  //     features: [...villageForm.features, { ...featureForm }]
-  //   });
-
-  //   setFeatureDialogOpen(false);
-  //   setFeatureForm({ name: '', description: '' });
-  // };
-
-  // const handleRemoveFeature = (index) => {
-  //   const newFeatures = [...villageForm.features];
-  //   newFeatures.splice(index, 1);
-  //   setVillageForm({
-  //     ...villageForm,
-  //     features: newFeatures
-  //   });
-  // };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
@@ -435,6 +390,7 @@ const AdminVillages = () => {
           pageSize={8}
           rowsPerPageOptions={[8, 16, 24]}
           disableSelectionOnClick
+          disableVirtualization
           loading={isLoading}
           getRowId={(row) => row._id || row._id}
           sx={{

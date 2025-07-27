@@ -118,7 +118,7 @@ export const AddEditChalet = ({
                                 moreDetails: value.moreDetails
                             }
                         }) : [],
-                        features: selectedChalet?.features?.length > 0 ? selectedChalet.features.map((value) => { return { feature: value.feature._id, price: value.price } }) : [],
+                        features: selectedChalet?.features?.length > 0 ? selectedChalet.features.map((value) => { return { feature: value.feature?._id || "", price: value.price || 0 } }) : [],
                         terms: selectedChalet?.terms?.length > 0 ? selectedChalet.terms.map((value) => value._id) : []
                     }
                     setRefData(_Data);
