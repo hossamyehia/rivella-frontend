@@ -19,6 +19,7 @@ import FeaturesTab from './tabs/FeaturesTab';
 import TermsTab from './tabs/TermsTab';
 import Swal from 'sweetalert2';
 import { createBlobFromURL, createFileFromUrl, deepEqual } from '../../../_helper/_helper';
+import ServicesTab from './tabs/ServicesTab';
 
 const defaultValues = {
     name: '',
@@ -31,6 +32,7 @@ const defaultValues = {
     guests: 1,
     price: 0,
     code: '',
+    description: '',
     mainImg: null,
     imgs: [],
     minNights: 1,
@@ -38,6 +40,7 @@ const defaultValues = {
     isVisiable: false,
     rooms: [],
     features: [],
+    services: [],
     terms: []
 }
 
@@ -68,20 +71,23 @@ export const AddEditChalet = ({
     const [bedTypes, setBedTypes] = useState([]);
     const [features, setFeatures] = useState([]);
     const [terms, setTerms] = useState([]);
-
+    const [services, setServices] = useState([]);
 
     useEffect(() => {
         (async () => {
-            const [bedTypesRes, featuresRes, termsRes] = await Promise.all([
+            const [bedTypesRes, featuresRes, termsRes, servicesRes] = await Promise.all([
                 _LookUpsService.getBedTypes(),
                 _LookUpsService.getFeatures(),
-                _LookUpsService.getTerms()
+                _LookUpsService.getTerms(),
+                _LookUpsService.getServices(),
             ])
 
             setBedTypes(bedTypesRes.data.data);
             setFeatures(featuresRes.data.data);
             setTerms(termsRes.data.data);
+            setServices(servicesRes.data.data);
         })();
+        console.log(formErrors);
     }, [])
 
     useEffect(() => {
@@ -119,6 +125,7 @@ export const AddEditChalet = ({
                             }
                         }) : [],
                         features: selectedChalet?.features?.length > 0 ? selectedChalet.features.map((value) => { return { feature: value.feature?._id || "", price: value.price || 0 } }) : [],
+                        services: selectedChalet?.services?.length > 0 ? selectedChalet.services.map((value) => { return { service: value.service?._id || "", price: value.price || 0 } }) : [],
                         terms: selectedChalet?.terms?.length > 0 ? selectedChalet.terms.map((value) => value._id) : []
                     }
                     setRefData(_Data);
@@ -201,14 +208,14 @@ export const AddEditChalet = ({
         if (!chaletForm.code) errors.code = 'الكود مطلوب';
 
         // ✅ Validate Features (no duplicates, no empty)
-        const featureIds = chaletForm.features.map((f) => f.feature);
-        const hasDuplicateFeatures = new Set(featureIds).size !== featureIds.length;
+        // const featureIds = chaletForm.features.map((f) => f.feature);
+        // const hasDuplicateFeatures = new Set(featureIds).size !== featureIds.length;
 
-        if (chaletForm.features.length < 1 || chaletForm.features.some(f => !f.feature)) {
-            errors.features = 'يجب اختيار ميزة واحدة على الأقل';
-        } else if (hasDuplicateFeatures) {
-            errors.features = 'لا يمكن اختيار نفس الميزة أكثر من مرة';
-        }
+        // if (chaletForm.features.length < 1 || chaletForm.features.some(f => !f.feature)) {
+        //     errors.features = 'يجب اختيار ميزة واحدة على الأقل';
+        // } else if (hasDuplicateFeatures) {
+        //     errors.features = 'لا يمكن اختيار نفس الميزة أكثر من مرة';
+        // }
 
         // ✅ Validate Rooms (was badroomsDetails before)
         if (
@@ -260,9 +267,10 @@ export const AddEditChalet = ({
 
         const formData = new FormData();
 
-        const KEYS_TO_STRINGIFY = ['rooms', 'features', 'terms'];
-        const DEEP_CHECK_KEYS = ['rooms', 'features'];
+        const KEYS_TO_STRINGIFY = ['rooms', 'features', 'terms', 'services'];
+        const DEEP_CHECK_KEYS = ['rooms', 'features', 'services'];
         const ARRAY_CHECK_KEYS = ['terms'];
+        // const IGNORE_Check_KEYS = ['description']
         // const OBJECT_VALUES_KEYS = ['city', "village"];
 
         for (const key of Object.keys(defaultValues)) {
@@ -306,8 +314,16 @@ export const AddEditChalet = ({
                     chaletForm[key].every((value, index) => deepEqual(value, refData[key][index]))
                 ) continue;
 
-                if (chaletForm[key] === refData[key])
-                    continue;
+                if (
+                    typeof chaletForm[key] === "string" &&
+                    chaletForm[key].length === refData[key].length &&
+                    chaletForm[key] === refData[key]
+                ) continue;
+
+                if (
+                    // !IGNORE_Check_KEYS.includes(key) &&
+                    chaletForm[key] === refData[key]
+                ) continue;
             }
 
             if (KEYS_TO_STRINGIFY.includes(key))
@@ -316,46 +332,11 @@ export const AddEditChalet = ({
                 chaletForm.imgs.forEach(img => formData.append(key, img))
             else
                 formData.append(key, chaletForm[key]);
+
+            // console.log
         }
 
-        console.log(...formData.entries())
-        // // إضافة الحقول الأساسية
-        // formData.append('name', chaletForm.name);
-        // formData.append('city', chaletForm.city);
-        // formData.append('village', chaletForm.village);
-        // formData.append('location', chaletForm.location);
-        // formData.append('description', chaletForm.description || '');
-        // formData.append('bedrooms', chaletForm.bedrooms);
-        // formData.append('bathrooms', chaletForm.bathrooms);
-        // formData.append('type', chaletForm.type);
-        // formData.append('guests', chaletForm.guests);
-        // formData.append('price', chaletForm.price);
-        // formData.append('code', chaletForm.code);
-        // formData.append('minNights', chaletForm.minNights);
-        // formData.append('isActive', chaletForm.isActive);
-        // formData.append('isVisiable', chaletForm.isVisiable);
-
-        // // إضافة الصورة الرئيسية إذا وجدت
-        // if (chaletForm.mainImg) {
-        //     formData.append('mainImg', chaletForm.mainImg);
-        // }
-
-        // // إضافة الصور الإضافية إذا وجدت
-        // if (chaletForm.imgs.length > 0) {
-        //     chaletForm.imgs.forEach(img => {
-        //         formData.append('imgs', img);
-        //     });
-        // }
-
-        // // إضافة الفيديو إذا وجد
-        // if (chaletForm.video) {
-        //     formData.append('video', chaletForm.video);
-        // }
-
-        // // إضافة التفاصيل كمصفوفات JSON
-        // formData.append('rooms', JSON.stringify(chaletForm.rooms));
-        // formData.append('features', JSON.stringify(chaletForm.features));
-        // formData.append('terms', JSON.stringify(chaletForm.terms));
+        // console.log(...formData.entries())
 
         try {
             const response = isEditMode
@@ -363,13 +344,6 @@ export const AddEditChalet = ({
                 : await _ChaletService.createChalet(formData);
 
             if (!response.success) {
-
-                // Swal.fire({
-                //     title: 'خطأ',
-                //     text: response.message || 'حدث خطأ أثناء حفظ الشاليه',
-                //     icon: 'error',
-                //     confirmButtonText: 'حسناً'
-                // });
                 setFormErrors({ general: response.message || 'حدث خطأ أثناء حفظ الشاليه' })
                 return;
             }
@@ -388,7 +362,7 @@ export const AddEditChalet = ({
             }
 
 
-            setChalets((value) => isEditMode ? value.map((chalet) => { return { ...chalet, ...transformed } }) : [...value, transformed]);
+            setChalets((value) => isEditMode ? value.map((chalet) => { return (chalet._id === transformed._id ? { ...chalet, ...transformed } : chalet) }) : [...value, transformed]);
             setChaletForm(defaultValues);
             setRefData({})
             onClose();
@@ -436,6 +410,11 @@ export const AddEditChalet = ({
                 setChaletForm={setChaletForm}
                 formErrors={formErrors}
                 terms={terms} />;
+            case 7: return <ServicesTab
+                chaletForm={chaletForm}
+                setChaletForm={setChaletForm}
+                formErrors={formErrors}
+                services={services} />;
             default: return null;
         }
     };
@@ -460,6 +439,7 @@ export const AddEditChalet = ({
                         <Tab label="تفاصيل الغرف" />
                         <Tab label="المميزات" />
                         <Tab label="الشروط" />
+                        <Tab label="الخدمات" />
                     </Tabs>
                 </Box>
 

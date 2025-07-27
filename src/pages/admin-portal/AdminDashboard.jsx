@@ -9,6 +9,7 @@ import CabinIcon from '@mui/icons-material/Cabin';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import HolidayVillageIcon from '@mui/icons-material/HolidayVillage';
+import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AddHomeIcon from '@mui/icons-material/AddHome';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -28,6 +29,7 @@ import AdminBookings from './pages/AdminBookings';
 import AdminReservations from './pages/AdminReservations';
 import AdminFeatures from './pages/AdminFeatures';
 import AdminTerms from './pages/AdminTerms';
+import AdminServices from './pages/AdminServices';
 // Uncomment if you want overview
 // import AdminOverview from './Admin pages/AdminOverview';
 
@@ -69,6 +71,7 @@ const AdminDashboard = () => {
     { text: 'المدن', icon: <LocationCityIcon />, section: 'cities' },
     { text: 'القرى', icon: <HolidayVillageIcon />, section: 'villages' },
     { text: 'المرافق', icon: <AddHomeIcon />, section: 'features' },
+    { text: 'الخدمات', icon: <HomeRepairServiceIcon />, section: 'services' },
     { text: 'القواعد', icon: <RuleIcon />, section: 'terms' },
     { text: 'الشاليهات', icon: <CabinIcon />, section: 'chalets' },
     { text: 'الكوبونات', icon: <ConfirmationNumberIcon />, section: 'coupons' },
@@ -83,6 +86,7 @@ const AdminDashboard = () => {
       case 'cities': return <AdminCities />;
       case 'villages': return <AdminVillages />;
       case 'features': return <AdminFeatures />;
+      case 'services': return <AdminServices />;
       case 'terms': return <AdminTerms />;
       case 'chalets': return <AdminChalets />;
       case 'coupons': return <AdminCoupons />;

@@ -78,7 +78,7 @@ const Login = () => {
         const { success, data, message } = await login(formData.email, formData.password);
 
         if(!success){
-          showAlert('error', message);
+          showAlert.error('خطأ', message);
           return;
         }
 

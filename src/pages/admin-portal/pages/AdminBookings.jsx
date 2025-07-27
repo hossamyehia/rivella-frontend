@@ -237,7 +237,12 @@ const AdminBookings = () => {
     { field: 'customerEmail', headerName: 'البريد الإلكتروني', width: 200 },
     { field: 'checkInDate', headerName: 'تاريخ الوصول', width: 140 },
     { field: 'checkOutDate', headerName: 'تاريخ المغادرة', width: 140 },
-
+    {
+      field: 'createdAt',
+      headerName: 'تاريخ الطلب',
+      width: 140,
+      valueFormatter: (value) => new Date(value).toDateString()
+    },
     {
       field: 'actions',
       headerName: 'الإجراءات',

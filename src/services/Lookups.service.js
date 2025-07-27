@@ -93,6 +93,21 @@ class LookupsService {
     }
   }
 
+  async getServices() {
+    try {
+      const response = await this.axiosInstance.get('/service');
+      return {
+        success: true,
+        data: response.data
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || 'خطأ في جلب الخدمات'
+      }
+    }
+  }
+
   async getTerms() {
     try {
       const response = await this.axiosInstance.get('/term');

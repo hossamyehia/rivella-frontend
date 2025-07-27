@@ -12,6 +12,8 @@ import ChaletDetails from './pages/ChaletDetails';
 import Filter from './pages/Filter';
 import Checkout from './pages/Checkout';
 import ContactUs from './pages/ContactUs';
+import { SocialButton } from "../../components/shared/Tags";
+import WhatsAppButton from "../../components/shared/WhatsAppButton";
 
 export default function GuestPortal() {
     return (
@@ -30,6 +32,9 @@ export default function GuestPortal() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/contact" element={<ContactUs />} />
             </Routes>
+            <SocialButton>
+                <WhatsAppButton></WhatsAppButton>
+            </SocialButton>
             <Footer />
         </>
     );

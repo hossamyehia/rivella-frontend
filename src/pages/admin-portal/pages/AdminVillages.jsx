@@ -38,6 +38,7 @@ import { useApiContext } from '../../../context/ApiContext';
 import VillageService from '../../../services/Village.service';
 import { useServicesContext } from '../../../context/ServicesContext';
 import FeaturesTab from '../../../components/features/AddEditChalet/tabs/FeaturesTab';
+import ServicesTab from '../../../components/features/AddEditChalet/tabs/ServicesTab';
 
 const AdminVillages = () => {
   const { axiosInstance, isLoading, setIsLoading } = useApiContext();
@@ -46,6 +47,7 @@ const AdminVillages = () => {
   const [villages, setVillages] = useState([]);
   const [cities, setCities] = useState([]);
   const [features, setFeatures] = useState([]);
+  const [services, setServices] = useState([]);
   const [error, setError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
@@ -73,10 +75,11 @@ const AdminVillages = () => {
     (async () => {
       setIsLoading(true);
       try {
-        const [villagesResponse, citiesResponse, featuresResponse] = await Promise.all([
+        const [villagesResponse, citiesResponse, featuresResponse, servicesResponse] = await Promise.all([
           _VillageService.getVillages(),
           waitingCall("LookupsService", "getCities"),
           waitingCall("LookupsService", "getFeatures"),
+          waitingCall("LookupsService", "getServices"),
         ]);
 
         if (!citiesResponse.success) {
@@ -87,6 +90,9 @@ const AdminVillages = () => {
         }
         if (!featuresResponse.success) {
           setError(featuresResponse.message || 'فشل في جلب بيانات المميزات');
+        }
+        if (!servicesResponse.success) {
+          setError(servicesResponse.message || 'فشل في جلب بيانات الخدمات');
         }
 
         if (villagesResponse.success) {
@@ -104,6 +110,9 @@ const AdminVillages = () => {
         }
         if (featuresResponse.success) {
           setFeatures(featuresResponse.data.data);
+        }
+        if (servicesResponse.success) {
+          setServices(servicesResponse.data.data);
         }
         setError('');
       } finally {
@@ -143,6 +152,7 @@ const AdminVillages = () => {
       image: null,
       imagePreview: null,
       features: [],
+      services: [],
       images: [],
       imagesPreviews: []
     });
@@ -160,6 +170,7 @@ const AdminVillages = () => {
       image: null,
       imagePreview: row.img, // existing main image URL
       features: row.features?.map((value)=> {return { ...value, feature: value.feature?._id || "" }}) || [],
+      services: row.services?.map((value)=> {return { ...value, service: value.service?._id || "" }}) || [],
       images: [],
       imagesPreviews: row.imgs || [] // existing additional images URLs
     });
@@ -244,6 +255,9 @@ const AdminVillages = () => {
 
     // Append features as JSON
     formData.append('features', JSON.stringify(villageForm.features));
+    
+    // Append services as JSON
+    formData.append('services', JSON.stringify(villageForm.services));
 
     // Append main image if available
     if (villageForm.image) {
@@ -266,6 +280,7 @@ const AdminVillages = () => {
       image: null,
       imagePreview: null,
       features: [],
+      services: [],
       images: [],
       imagesPreviews: []
     });
@@ -335,6 +350,22 @@ const AdminVillages = () => {
           <Box sx={{ height: "100%", width: "100%", display: 'flex', alignContent: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
             {features.slice(0, 2).map((feature, index) => (
               <Chip key={index} sx={{lineHeight: '3ch'}} label={`${feature.name} - ${feature.price || 'مجاني'}`} size="small" />
+            ))}
+            {/* {features.length > 2 && <Chip label={`+${features.length - 2}`} size="small" variant="outlined" />} */}
+          </Box>
+        ) : '—';
+      }
+    },
+    {
+      field: 'services',
+      headerName: 'الخدمات',
+      width: 200,
+      renderCell: (params) => {
+        const services = params.row?.services ? params.row?.services?.map((value)=> {return {...value, name: value.service?.name || value.name || "", price: value.price || 0}}) : [];
+        return services.length ? (
+          <Box sx={{ height: "100%", width: "100%", display: 'flex', alignContent: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+            {services.slice(0, 2).map((service, index) => (
+              <Chip key={index} sx={{lineHeight: '3ch'}} label={`${service.name} - ${service.price || 'مجاني'}`} size="small" />
             ))}
             {/* {features.length > 2 && <Chip label={`+${features.length - 2}`} size="small" variant="outlined" />} */}
           </Box>
@@ -416,55 +447,6 @@ const AdminVillages = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Feature Dialog */}
-      {/* <Dialog open={featureDialogOpen} onClose={() => setFeatureDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>إضافة ميزة جديدة</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                name="name"
-                label="اسم الميزة"
-                value={featureForm.name}
-                onChange={handleFeatureInputChange}
-                fullWidth
-                error={!!featureErrors.name}
-                helperText={featureErrors.name}
-                sx={{ fontSize: '18px' }}
-                inputProps={{ style: { fontSize: '16px' } }}
-                InputLabelProps={{ style: { fontSize: '16px' } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="description"
-                label="وصف الميزة (اختياري)"
-                value={featureForm.description}
-                onChange={handleFeatureInputChange}
-                fullWidth
-                multiline
-                rows={3}
-                error={!!featureErrors.description}
-                helperText={featureErrors.description}
-                inputProps={{ style: { fontSize: '16px' } }}
-                InputLabelProps={{ style: { fontSize: '16px' } }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setFeatureDialogOpen(false)} color="inherit" sx={{ fontSize: '16px' }}>إلغاء</Button>
-          <Button
-            onClick={handleAddFeature}
-            color="primary"
-            variant="contained"
-            sx={{ fontSize: '16px', px: 4, py: 1 }}
-          >
-            إضافة
-          </Button>
-        </DialogActions>
-      </Dialog> */}
-
       {/* Add/Edit Village Dialog */}
       <Dialog open={formDialogOpen} onClose={() => setFormDialogOpen(false)} maxWidth="md">
         <DialogTitle>{isEditing ? 'تعديل قرية' : 'إضافة قرية جديدة'}</DialogTitle>
@@ -527,40 +509,21 @@ const AdminVillages = () => {
 
               <Grid item xs={12} sx={{ minWidth: '300px', maxWidth: '600px', width: '100%' }}>
 
-                {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">ميزات القرية</Typography>
-                  <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenFeatureDialog} sx={{ fontSize: '15px' }}>
-                    إضافة ميزة
-                  </Button>
-                </Box>
-
-                {villageForm.features.length > 0 ? (
-                  <List sx={{ bgcolor: 'background.paper', border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                    {villageForm.features.map((feature, index) => (
-                      <ListItem key={index} divider={index !== villageForm.features.length - 1}>
-                        <ListItemText
-                          primary={feature.name}
-                          secondary={feature.description}
-                          primaryTypographyProps={{ fontWeight: 'bold' }}
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveFeature(index)}>
-                            <DeleteIcon color="error" />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                    لم يتم إضافة أي ميزات بعد. انقر على "إضافة ميزة" لإضافة ميزات للقرية.
-                  </Typography>
-                )} */}
                 <FeaturesTab
                   dataForm={villageForm}
                   setDataForm={setVillageForm}
                   formErrors={formErrors}
                   features={features}
+                />
+              </Grid>
+
+              <Grid item xs={12} sx={{ minWidth: '300px', maxWidth: '600px', width: '100%' }}>
+
+                <ServicesTab
+                  dataForm={villageForm}
+                  setDataForm={setVillageForm}
+                  formErrors={formErrors}
+                  services={services}
                 />
               </Grid>
 

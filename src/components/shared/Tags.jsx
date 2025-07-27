@@ -37,3 +37,13 @@ export const ShareButton = styled(Box)(({ position, dark, size }) => ({
     backgroundColor: dark ? "black" : "white",
     color: dark ? "white" : 'gray',
 }));
+
+export const SocialButton = styled(Box)(({ position, dark, size }) => ({
+    ...TagStyle,
+    position: position || "fixed",
+    padding: size || 3,
+    bottom: 64,
+    left: 12,
+    backgroundColor: dark ? "black" : "white",
+    color: dark ? "white" : 'green',
+}));

@@ -596,9 +596,9 @@ const ChaletDetails = () => {
                 <DetailsCardTiTle>
                   الوصف
                 </DetailsCardTiTle>
-                <Typography variant="body1" color="text.secondary" mb={2}>
-                  {chalet.description || 'لا يوجد وصف متاح لهذا الشاليه.'}
-                </Typography>
+                <Typography variant="body1" color="text.secondary" mb={2} >
+                  {chalet.description.split("\n").map((value, index) => <span key={`des-${index}`}>{value}<br style={{ lineHeight: "1ch" }} /></span>) || 'لا يوجد وصف متاح لهذا الشاليه.'}
+                </Typography >
               </DetailsCard>
             )}
             {/* مميزات الشاليه الأساسية */}
@@ -689,20 +689,11 @@ const ChaletDetails = () => {
                         textAlign: 'center',
                       }}
                     >
-                      {/* <CheckCircleIcon /> */}
                       <FeatureChip
-                        // icon={<IndexIcon number={index + 1} backgroundColor={theme.palette.primary.main} />}
-                        label={`${value.feature.name} - ${value.price ? `${value.price} جنية` : 'مجاني'}`}
+                        label={`${value.feature.name}${value.price ? ` - ${value.price} جنية` : ''}`}
                         color="primary"
                         variant="outlined"
                       />
-                      {/* <Typography
-                        variant="caption"
-                        color="textSecondary"
-                        sx={{ mt: 0.5 }}
-                      >
-                        {feature.description}
-                      </Typography> */}
                     </Box>
                   ))}
                 </Box>
@@ -730,20 +721,94 @@ const ChaletDetails = () => {
                 </InfoList>
               </DetailsCard>
             )}
+
+            {/* الخدمات */}
+            {chalet.services && chalet.services.length > 0 && (
+              <DetailsCard >
+                <DetailsCardTiTle>
+                  الخدمات
+                </DetailsCardTiTle>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginBlockEnd: theme.spacing(2), }}>
+                  {chalet.services.map((value, index) => (
+                    <Box
+                      key={value._id}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <FeatureChip
+                        label={`${value.service?.name} - ${value.price ? `${value.price} جنية` : 'مجاني'}`}
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </DetailsCard>
+            )}
+
+            {/*  مميزات القرية  */}
+            {chalet.village.features && chalet.village.features.length > 0 && (
+              <DetailsCard >
+                <DetailsCardTiTle>
+                  مميزات القرية
+                </DetailsCardTiTle>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginBlockEnd: theme.spacing(2), }}>
+                  {chalet.village.features.map((value, index) => (
+                    <Box
+                      key={`vilserv-${value._id}`}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <FeatureChip
+                        label={`${value.feature.name}${value.price ? ` - ${value.price} جنية` : ''}`}
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </DetailsCard>
+            )}
+
+            {/*  خدمات القرية  */}
+            {chalet.village.services && chalet.village.services.length > 0 && (
+              <DetailsCard >
+                <DetailsCardTiTle>
+                  خدمات القرية
+                </DetailsCardTiTle>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginBlockEnd: theme.spacing(2), }}>
+                  {chalet.village.services.map((value, index) => (
+                    <Box
+                      key={`vilserv-${value._id}`}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <FeatureChip
+                        label={`${value.service?.name} - ${value.price ? `${value.price} جنية` : 'مجاني'}`}
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </DetailsCard>
+            )}
           </Box>
         </Grid>
         <Grid item size={12} sx={{ order: { xs: 2, md: 2 } }}>
           <BookingPanel>
-            {/* <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-            <Typography variant="h5" color="primary" fontWeight="bold">
-              {chalet.price} جنية
-            </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              / ليلة
-            </Typography>
-          </Box>
-
-          <Divider sx={{ mb: 3 }} /> */}
 
             {/* اختيار تواريخ الحجز */}
             <Box mb={3}>
@@ -1018,7 +1083,7 @@ const ChaletDetails = () => {
         </DialogContent>
       </Dialog>
 
-      <ShareButton position={'fixed'} dark={true} size={4}>
+      <ShareButton position={'fixed'} dark='true' size={4}>
         <CopyButton text={buildShareText({ ...chalet, link: `${window.location.origin}/chalet/${chalet._id}` })}></CopyButton>
       </ShareButton>
     </Container>
