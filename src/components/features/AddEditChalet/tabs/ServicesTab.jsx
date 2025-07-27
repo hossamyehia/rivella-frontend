@@ -51,7 +51,7 @@ export default function ServicesTab({ dataForm, setDataForm, services, formError
                 </Typography>
             )}
 
-            {!dataForm.services.length && (
+            {dataForm.services && !dataForm.services.length && (
                 <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
                     لم يتم إضافة أي خدمات بعد. انقر على "إضافة خدمة" لإضافة خدمات.
                 </Typography>

@@ -87,7 +87,7 @@ export const AddEditChalet = ({
             setTerms(termsRes.data.data);
             setServices(servicesRes.data.data);
         })();
-        console.log(formErrors);
+        // console.log(formErrors);
     }, [])
 
     useEffect(() => {
@@ -411,8 +411,8 @@ export const AddEditChalet = ({
                 formErrors={formErrors}
                 terms={terms} />;
             case 7: return <ServicesTab
-                chaletForm={chaletForm}
-                setChaletForm={setChaletForm}
+                dataForm={chaletForm}
+                setDataForm={setChaletForm}
                 formErrors={formErrors}
                 services={services} />;
             default: return null;
