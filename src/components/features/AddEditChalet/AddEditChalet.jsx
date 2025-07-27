@@ -117,13 +117,7 @@ export const AddEditChalet = ({
                                 beds: value.beds.map((bed) => { return { count: bed.count, bedType: bed.bedType } }),
                                 moreDetails: value.moreDetails
                             }
-                        }) : [{
-                            beds: [{
-                                count: 1,
-                                bedType: "سرير فردي"
-                            }],
-                            moreDetails: ""
-                        }],
+                        }) : [],
                         features: selectedChalet?.features?.length > 0 ? selectedChalet.features.map((value) => { return { feature: value.feature._id, price: value.price } }) : [],
                         terms: selectedChalet?.terms?.length > 0 ? selectedChalet.terms.map((value) => value._id) : []
                     }

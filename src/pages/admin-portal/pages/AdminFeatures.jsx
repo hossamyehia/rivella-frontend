@@ -183,7 +183,7 @@ const AdminFeatures = () => {
                     pageSize={8}
                     rowsPerPageOptions={[8, 16, 24]}
                     disableSelectionOnClick
-                    isLoading={isLoading}
+                    loading={isLoading}
                     getRowId={row => row._id}
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {

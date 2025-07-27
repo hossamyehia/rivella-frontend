@@ -375,7 +375,7 @@ const AdminVillages = () => {
       headerName: 'الميزات',
       width: 200,
       renderCell: (params) => {
-        const features = params.row?.features.map((value)=> {return {...value, name: value.feature.name, price: value.price}}) || [];
+        const features = params.row?.features ? params.row?.features?.map((value)=> {return {...value, name: value.feature?.name || value.name || "", price: value.price || 0}}) : [];
         return features.length ? (
           <Box sx={{ height: "100%", width: "100%", display: 'flex', alignContent: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
             {features.slice(0, 2).map((feature, index) => (
@@ -435,7 +435,7 @@ const AdminVillages = () => {
           pageSize={8}
           rowsPerPageOptions={[8, 16, 24]}
           disableSelectionOnClick
-          isLoading={isLoading}
+          loading={isLoading}
           getRowId={(row) => row._id || row._id}
           sx={{
             '& .MuiDataGrid-columnHeaders': {

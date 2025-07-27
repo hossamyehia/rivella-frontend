@@ -381,7 +381,7 @@ const AdminChalets = () => {
           rowsPerPageOptions={[15, 25, 50]}
           onPageSizeChange={(newPageSize) => setLimit(newPageSize)}
           disableSelectionOnClick
-          isLoading={isLoading}
+          loading={isLoading}
           sx={{
             '& .MuiDataGrid-columnHeaders': { backgroundColor: 'primary.main', color: 'black' },
             '& .MuiDataGrid-cell': { color: 'black' },

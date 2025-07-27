@@ -240,7 +240,7 @@ const AdminCities = () => {
           pageSize={8}
           rowsPerPageOptions={[8, 16, 24]}
           disableSelectionOnClick
-          isLoading={isLoading}
+          loading={isLoading}
         />
       </Paper>
 

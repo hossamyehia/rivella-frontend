@@ -185,7 +185,7 @@ const AdminTerms = () => {
                     pageSize={8}
                     rowsPerPageOptions={[8, 16, 24]}
                     disableSelectionOnClick
-                    isLoading={isLoading}
+                    loading={isLoading}
                     getRowId={row => row._id}
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {
@@ -221,19 +221,6 @@ const AdminTerms = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sx={{ width: "100%" }}>
-                            {/* <TextField
-                                name="allowed"
-                                label="وصف الميزة (اختياري)"
-                                value={termForm.allowed}
-                                onChange={handleInputChange}
-                                fullWidth
-                                multiline
-                                rows={3}
-                                error={!!formErrors.allowed}
-                                helperText={formErrors.allowed}
-                                inputProps={{ style: { fontSize: '16px' } }}
-                                InputLabelProps={{ style: { fontSize: '16px' } }}
-                            /> */}
                             <FormControlLabel
                                 control={
                                     <Switch
