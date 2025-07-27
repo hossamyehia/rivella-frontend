@@ -35,7 +35,7 @@ const AdminUsers = () => {
       try {
         const response = await _UserService.getUsers();
         if (response.success) {
-          setUsers(response.data);
+          setUsers(response.data.data);
           setError('');
         } else {
           setError(response.message);
