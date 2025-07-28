@@ -67,7 +67,7 @@ export function buildShareText(data) {
 🏷️ * ${data.type} *
 💰 *السعر لليلة:* ${data.price} جنيه فقط  
 🔑 *الكود الخاص بالشالية:* ${data.code}  
-🛏️ *عدد الغرف:* ${data.rooms?.length || 0}  
+🛏️ *عدد الغرف:* ${data.bedrooms || 0}  
 👥 *عدد الضيوف:* ${data.guests}  
 📍 *القرية:* ${data.village.name}  
 
