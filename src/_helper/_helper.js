@@ -49,16 +49,44 @@ export function deepEqual(obj1, obj2) {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
     if (keys1.length !== keys2.length) return false;
-
+    
     for (let key of keys1) {
         const val1 = obj1[key];
         const val2 = obj2[key];
         const areObjects = val1 && typeof val1 === 'object' && val2 && typeof val2 === 'object';
-        if (areObjects && !deepEqual(val1, val2) || !areObjects && val1 !== val2) {
+        if ((areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2)) {
             return false;
         }
     }
     return true;
+}
+
+export  function filesAreEqual(file1, file2) {
+  // Step 1: Basic checks
+
+  return !(
+    file1.size !== file2.size ||
+    file1.type !== file2.type || 
+    file1.name !== file2.name
+  ) 
+//   return false;
+
+
+//   // Step 2: Read both files as ArrayBuffers
+//   const buffer1 = await file1.arrayBuffer();
+//   const buffer2 = await file2.arrayBuffer();
+
+//   // Step 3: Compare binary data
+//   if (buffer1.byteLength !== buffer2.byteLength) return false;
+
+//   const view1 = new Uint8Array(buffer1);
+//   const view2 = new Uint8Array(buffer2);
+
+//   for (let i = 0; i < view1.length; i++) {
+//     if (view1[i] !== view2[i]) return false;
+//   }
+
+//   return true;
 }
 
 export function buildShareText(data) {

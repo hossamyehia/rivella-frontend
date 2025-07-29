@@ -18,6 +18,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import Loader from '../../../components/Loader';
 import Swal from 'sweetalert2';
 import { useApiContext } from '../../../context/ApiContext';
@@ -38,6 +39,7 @@ const AdminFeatures = () => {
     const [formErrors, setFormErrors] = useState({});
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedFeatureId, setSelectedFeatureId] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -56,8 +58,20 @@ const AdminFeatures = () => {
         })();
     }, []);
 
+    const handleEditClick = (data) => {
+        setSelectedFeatureId(data._id);
+        setFeatureForm({
+            name: data.name,
+            description: data.description
+        });
+        setIsEditing(true);
+        setFormErrors({});
+        setFormDialogOpen(true);
+    };
+
     const handleAddClick = () => {
         setFeatureForm({ name: '', description: '' });
+        setIsEditing(false);
         setFormErrors({});
         setFormDialogOpen(true);
     };
@@ -77,37 +91,38 @@ const AdminFeatures = () => {
     };
 
     const handleSubmit = async () => {
-        if (!validateForm()) return;
+        if (!isEditing && !validateForm()) return;
 
         setIsLoading(true);
         try {
-            const response = await _FeatureService.createFeature(featureForm);
+            const response = isEditing ? await _FeatureService.updateFeature(selectedFeatureId, featureForm) : await _FeatureService.createFeature(featureForm);
             if (!response.success) {
                 Swal.fire({
                     title: 'خطأ',
-                    text: response.message || 'حدث خطأ أثناء إضافة الميزة',
+                    text: response.message || `حدث خطأ أثناء ${isEditing ? 'تحديث' : 'إضافة'} الميزة`,
                     icon: 'error',
                     confirmButtonText: 'حسناً'
                 });
                 return;
             }
-            setFeatures((value) => [...value, response.data.data]);
+            setFeatures((value) => isEditing ? value.map(f => f._id === selectedFeatureId ? response.data.data : f) : [...value, response.data.data]);
             setFormDialogOpen(false);
             setFeatureForm({ name: '', description: '' });
             Swal.fire({
-                title: 'تمت الإضافة',
-                text: 'تم إضافة الميزة بنجاح',
+                title: `تمت العملية بنجاح`,
+                text: `تم ${isEditing ? 'تحديث' : 'إضافة'} الميزة بنجاح`,
                 icon: 'success',
                 confirmButtonText: 'حسناً'
             });
+            setSelectedFeatureId(null);
         } finally {
             setIsLoading(false);
         }
 
     };
 
-    const handleDeleteClick = (userId) => {
-        setSelectedFeatureId(userId);
+    const handleDeleteClick = (featureId) => {
+        setSelectedFeatureId(featureId);
         setDeleteDialogOpen(true);
     };
 
@@ -147,13 +162,14 @@ const AdminFeatures = () => {
             headerName: 'الإجراءات',
             width: 100,
             renderCell: (params) => (
-                <IconButton
-                    color="error"
-                    onClick={() => handleDeleteClick(params.row._id)}
-                    aria-label="حذف"
-                >
-                    <DeleteIcon />
-                </IconButton>
+                <Box>
+                    <IconButton color="primary" onClick={() => handleEditClick(params.row)}>
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDeleteClick(params.row._id)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </Box>
             ),
         },
     ];
@@ -201,7 +217,7 @@ const AdminFeatures = () => {
             </Paper>
 
             <Dialog open={formDialogOpen} onClose={() => setFormDialogOpen(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>إضافة ميزة جديدة</DialogTitle>
+                <DialogTitle>{isEditing ? 'تعديل الميزة' : 'تسجيل الميزة'}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={3} sx={{ mt: 1 }}>
                         <Grid item xs={12} sx={{ width: "100%" }}>
@@ -243,7 +259,7 @@ const AdminFeatures = () => {
                         variant="contained"
                         sx={{ fontSize: '16px', px: 4, py: 1 }}
                     >
-                        إضافة
+                        {isEditing ? 'تحديث' : 'تسجيل'}
                     </Button>
                 </DialogActions>
             </Dialog>

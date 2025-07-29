@@ -9,19 +9,11 @@ import {
   Button,
   Card,
   CardContent,
-  Stack,
   Paper,
   useTheme,
   useMediaQuery,
   IconButton,
   Fade,
-  Pagination,
-  FormControl,
-  Select,
-  MenuItem,
-  TextField,
-  InputLabel,
-  InputAdornment,
   CardMedia,
   CardActions
 } from '@mui/material';
@@ -32,11 +24,8 @@ import HolidayVillageIcon from '@mui/icons-material/HolidayVillage';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import SearchIcon from '@mui/icons-material/Search';
-import BedIcon from '@mui/icons-material/Bed';
-import ClearIcon from '@mui/icons-material/Clear';
 import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 
-import { MyContext } from '../../../context/MyContext';
 import ChaletCard from '../../../components/features/ChaletCard/ChaletCard';
 import Loader from '../../../components/Loader';
 
@@ -628,58 +617,6 @@ const Home = () => {
             </Typography>
           )}
         </Box>
-
-
-
-
-
-
-
-        {/* Popular Chalets Section with Pagination - Improved Centered Grid Layout */}
-        {/* <Box mb={6} id="chalets-section">
-          <Typography variant="h4" component="h2" color="primary" fontWeight="bold" mb={4}>
-            الشاليهات الأكثر شعبية
-          </Typography>
-
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <>
-            {filteredChalets.length > 0 ? (
-      <Grid container spacing={3} justifyContent="center">
-        {filteredChalets.map((chalet) => (
-          <Grid item xs={12} sm={6} md={4} key={chalet._id} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <ChaletCard chalet={chalet} sx={{ width: '100%', maxWidth: '350px' }} />
-          </Grid>
-        ))}
-      </Grid>
-    ) : (
-      <Typography variant="body1" textAlign="center" color="text.secondary">
-        لا توجد شاليهات متوفرة بناءً على المعايير المحددة
-      </Typography>
-    )} 
-
-              {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                  <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={handleChangePage}
-                    color="primary"
-                    size={isMobile ? "small" : "large"}
-                    sx={{
-                      '& .MuiPaginationItem-root': {
-                        fontWeight: 'bold',
-                        borderRadius: '10px',
-                        mx: 0.5
-                      }
-                    }}
-                  />
-                </Box>
-              )}
-            </>
-          )}
-        </Box> */}
 
         {/* Info Section with improved spacing and styling */}
         <Box mb={10} mt={6} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.02)', py: 6, px: 4, borderRadius: '20px' }}>

@@ -2,7 +2,7 @@ import { Box, Button, Typography, Paper, Grid, TextField, IconButton, Select, Fo
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function FeaturesTab({ dataForm, setDataForm, features, formErrors }) {
+export default function FeaturesTab({ dataForm, setDataForm, features, formErrors, emptyAlowed = false }) {
 
     const addArrayItem = (arrayName) => {
         if (arrayName === 'features') {
@@ -110,7 +110,7 @@ export default function FeaturesTab({ dataForm, setDataForm, features, formError
                             <IconButton
                                 color="error"
                                 onClick={() => removeArrayItem('features', index)}
-                                disabled={dataForm.features.length <= 1}
+                                disabled={!emptyAlowed && dataForm.features.length <= 1}
                             >
                                 <DeleteIcon />
                             </IconButton>

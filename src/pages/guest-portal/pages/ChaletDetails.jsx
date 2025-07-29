@@ -1,5 +1,7 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 import {
   Container,
   Typography,
@@ -9,9 +11,7 @@ import {
   Divider,
   Button,
   Chip,
-  List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Dialog,
   DialogContent,
@@ -22,8 +22,8 @@ import {
   Modal,
   Fade,
   Backdrop,
-  useMediaQuery,
-  useTheme
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
@@ -41,17 +41,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import { MyContext } from '../../../context/MyContext';
 import Loader from '../../../components/Loader';
 import showAlert from '../../../components/Alerts';
 import { buildShareText, getDayDifference } from '../../../_helper/_helper';
 import Alerts from '../../../components/Alerts';
-import IndexIcon from '../../../components/shared/IndexIcon';
 import { RoomInfo, RoomInfoIcon, RoomInfoNumber, RoomInfoText } from '../../../components/_cards/RoomInfo';
 import { TermInfo, TermInfoIcon } from '../../../components/_cards/TermInfo';
 import { useApiContext } from '../../../context/ApiContext';
 import { ShareButton } from '../../../components/shared/Tags';
 import CopyButton from '../../../components/shared/CopyButton';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination as SwiperPagination, Autoplay } from 'swiper/modules';
+import ChaletService from '../../../services/Chalet.service';
+import ChaletCard from '../../../components/features/ChaletCard/ChaletCard';
+
 
 // Styled components
 const InfoList = styled(Box)(({ theme }) => ({
@@ -223,7 +226,7 @@ const ChaletDetails = () => {
   const theme = useTheme();
 
   const { axiosInstance, isLogin } = useApiContext();
-
+  const _ChaletService = useMemo(() => new ChaletService(axiosInstance), [axiosInstance]);
   const [loading, setLoading] = useState(true);
   const [chalet, setChalet] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -238,46 +241,57 @@ const ChaletDetails = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarView, setCalendarView] = useState('start'); // 'start' or 'end'
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+
+  const [similiarChaletsLoading, setSimiliarChaletsLoading] = useState(true);
+  const [similiarChalets, setSimiliarChalets] = useState([]);
   // تحميل بيانات الشاليه
   useEffect(() => {
-    const fetchChaletDetails = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get(`/chalet/${id}`);
+    (async () => {
+      setLoading(true);
+      const response = await _ChaletService.getChaletById(id);
 
-        if (response.data.success) {
-          setChalet(response.data.data);
+      if (!response.success)
+        showAlert['error']('error', response.message || 'حدث خطأ أثناء تحميل بيانات الشاليه');
 
-          // معالجة الفترات المحجوزة لإنشاء مصفوفة التواريخ المعطلة
-          if (response.data.data.reservedPeriods && response.data.data.reservedPeriods.length > 0) {
-            const disabled = [];
-            response.data.data.reservedPeriods.forEach(period => {
-              const currentDate = new Date(period.checkIn);
-              const endDate = new Date(period.checkOut);
+      setChalet(response.data.data);
 
-              while (currentDate <= endDate) {
-                disabled.push(new Date(currentDate));
-                currentDate.setDate(currentDate.getDate() + 1);
-              }
-            });
+      // معالجة الفترات المحجوزة لإنشاء مصفوفة التواريخ المعطلة
+      if (response.data.data.reservedPeriods && response.data.data.reservedPeriods.length > 0) {
+        const disabled = [];
+        response.data.data.reservedPeriods.forEach(period => {
+          const currentDate = new Date(period.checkIn);
+          const endDate = new Date(period.checkOut);
 
-            setDisabledDates(disabled);
+          while (currentDate <= endDate) {
+            disabled.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
           }
+        });
 
-          // تعيين عدد الزوار الافتراضي إلى 1
-          setGuestCount(1);
-        }
-      } catch (error) {
-        console.error('Error fetching chalet details:', error);
-        showAlert('error', 'حدث خطأ أثناء تحميل بيانات الشاليه');
-      } finally {
-        setLoading(false);
+        setDisabledDates(disabled);
       }
-    };
 
-    fetchChaletDetails();
-  }, [id, axiosInstance]);
+      // تعيين عدد الزوار الافتراضي إلى 1
+      setGuestCount(1);
+      setLoading(false);
+    })()
+
+  }, [id]);
+
+  useEffect(() => {
+    if (chalet && chalet.village) {
+      (async () => {
+        setSimiliarChaletsLoading(true);
+        const response = await _ChaletService.getAllChalets({ village: chalet.village._id });
+        if (response.success) {
+          setSimiliarChalets(response.data.data.filter(chalet => chalet._id !== id));
+          setSimiliarChaletsLoading(false);
+        }
+      })()
+    }
+  }, [chalet]);
 
   // حساب إجمالي الليالي والسعر عند تغيير تواريخ الحجز
   useEffect(() => {
@@ -929,6 +943,48 @@ const ChaletDetails = () => {
         </Grid>
         {/* قسم الحجز - على اليمين وثابت أثناء التمرير */}
       </Grid>
+      {similiarChaletsLoading ? (
+        <Loader message="جاري التحميل..." />
+      ) : (
+        <Grid container alignItems={'center'} mt={4} >
+          <Grid size={{ xs: 6 }}>
+            <Typography variant="h4" fontWeight="bold">
+              الشاليهات المشابهة
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end'}}>
+            <Button variant="contained" color="primary" size="large" component={Link} to={"/chalets?village=" + chalet.village._id} sx={{ borderRadius: '8px' }}>
+              عرض شاليهات القرية
+            </Button>
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            {similiarChalets.length > 0 ? (
+              <Swiper
+                modules={[Navigation, SwiperPagination, Autoplay]}
+                spaceBetween={25}
+                slidesPerView={isMobile ? 1 : 4}
+
+                autoplay={{ delay: 3000, disableOnInteraction: false }}
+                loop={isMobile ? similiarChalets.length > 1 : similiarChalets.length > 4}
+                style={{ padding: '10px 5px 40px' }}
+              >
+                {similiarChalets.slice(0, 10).map((chalet) => (
+                  <SwiperSlide key={chalet._id}>
+                    <Box sx={{ height: '100%' }}>
+                      <ChaletCard chalet={chalet} />
+                    </Box>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : (
+              <Typography variant="body1" textAlign="center" color="text.secondary">
+                لا توجد شاليهات مشابهه حالياً
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+      )}
+
       {/* نافذة التقويم */}
       <Dialog
         open={isCalendarOpen}

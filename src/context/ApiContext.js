@@ -7,8 +7,8 @@ export const useApiContext = () => useContext(ApiContext);
 
 export const ApiContextProvider = ({ children }) => {
 
-    const host = 'https://rivellaexplore.com/api/v1/rivella';
-    // const host = "http://localhost:3001/api/v1/rivella"
+    // const host = 'https://rivellaexplore.com/api/v1/rivella';
+    const host = "http://localhost:3001/api/v1/rivella";
     // Create axios instance with baseURL
     const axiosInstance = axios.create({
         baseURL: host,

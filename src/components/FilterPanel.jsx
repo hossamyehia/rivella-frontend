@@ -31,6 +31,11 @@ const FilterPanel = () => {
   const [priceRange, setPriceRange] = useState([0, 100000]);
   // const [ loading, setLoading ] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleDropdownClose = () => {
+    setIsDropdownOpen(false);
+  };
 
   useEffect(() => {
     (async () => {
@@ -175,12 +180,15 @@ const FilterPanel = () => {
       </FormControl>
 
 
-      <FormControl fullWidth sx={{mb:2}}>
+      <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel>اختيار المميزات</InputLabel>
         <Select
           multiple
           value={filters.features}
-          onChange={(e) => handleFilterChange({ features: e.target.value })}
+          open={isDropdownOpen}
+          onClose={() => setIsDropdownOpen(false)}
+          onOpen={() => setIsDropdownOpen(true)}
+          onChange={(e) => (e.target.value[e.target.value.length - 1] === '__close__' ? null :  handleFilterChange({ features: e.target.value }))}
           input={<OutlinedInput label="اختيار المميزات" />}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -205,6 +213,17 @@ const FilterPanel = () => {
               {feature.name}
             </MenuItem>
           ))}
+
+          <MenuItem
+            onClick={(e)=> {
+              e.stopPropagation();
+              handleDropdownClose();
+            }}
+            value='__close__'
+            sx={{ justifyContent: 'center', fontWeight: 'bold', color: 'white', background: "orange", ":hover": { background: "orange" } }}
+          >
+            إغلاق
+          </MenuItem>
         </Select>
       </FormControl>
 

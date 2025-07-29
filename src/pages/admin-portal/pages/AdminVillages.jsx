@@ -240,7 +240,7 @@ const AdminVillages = () => {
     if (!villageForm.name.trim()) errors.name = 'اسم القرية مطلوب';
     if (!villageForm.cityId) errors.cityId = 'اختيار المدينة مطلوب';
     if (!isEditing && !villageForm.image) errors.image = 'صورة القرية الرئيسية مطلوبة';
-    // if (villageForm.features.length <= 0) errors.features = "يرجي اختيار ميزة واحد علي الاقل"
+    if (villageForm.features.length <= 0) errors.features = "يرجي اختيار ميزة واحد علي الاقل"
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -514,6 +514,7 @@ const AdminVillages = () => {
                   setDataForm={setVillageForm}
                   formErrors={formErrors}
                   features={features}
+                  emptyAlowed={true}
                 />
               </Grid>
 

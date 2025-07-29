@@ -18,7 +18,7 @@ import RoomsTab from './tabs/RoomsTab';
 import FeaturesTab from './tabs/FeaturesTab';
 import TermsTab from './tabs/TermsTab';
 import Swal from 'sweetalert2';
-import { createBlobFromURL, createFileFromUrl, deepEqual } from '../../../_helper/_helper';
+import { createBlobFromURL, createFileFromUrl, deepEqual, filesAreEqual } from '../../../_helper/_helper';
 import ServicesTab from './tabs/ServicesTab';
 
 const defaultValues = {
@@ -36,7 +36,7 @@ const defaultValues = {
     mainImg: null,
     imgs: [],
     minNights: 1,
-    isActive: false,
+    isActive: true,
     isVisiable: false,
     rooms: [],
     features: [],
@@ -58,7 +58,7 @@ export const AddEditChalet = ({
     selectedChalet = null,
     isEditMode = false }) => {
 
-    const [chaletForm, setChaletForm] = useState(defaultValues);
+    const [chaletForm, setChaletForm] = useState(structuredClone(defaultValues));
     const [refData, setRefData] = useState({});
     const [currentTab, setCurrentTab] = useState(0);
     const [formErrors, setFormErrors] = useState(Object.keys(defaultValues).reduce((prev, curr) => {
@@ -116,8 +116,8 @@ export const AddEditChalet = ({
                         mainImg: mainImageFile || null,
                         imgs: imagesFile || [],
                         minNights: selectedChalet?.minNights || 1,
-                        isActive: selectedChalet?.isActive || false,
-                        isVisiable: selectedChalet?.isVisiable || false,
+                        isActive: selectedChalet?.isActive ?? true,
+                        isVisiable: selectedChalet?.isVisiable ?? false,
                         rooms: selectedChalet?.rooms?.length > 0 ? selectedChalet.rooms.map((value) => {
                             return {
                                 beds: value.beds.map((bed) => { return { count: bed.count, bedType: bed.bedType } }),
@@ -128,9 +128,9 @@ export const AddEditChalet = ({
                         services: selectedChalet?.services?.length > 0 ? selectedChalet.services.map((value) => { return { service: value.service?._id || "", price: value.price || 0 } }) : [],
                         terms: selectedChalet?.terms?.length > 0 ? selectedChalet.terms.map((value) => value._id) : []
                     }
-                    setRefData(_Data);
-                    setChaletForm(_Data);
-
+                    
+                    setRefData(structuredClone(_Data));
+                    setChaletForm(structuredClone(_Data));
                 } catch (err) {
                     console.error(err)
                 }
@@ -138,7 +138,7 @@ export const AddEditChalet = ({
             })()
         }
         else {
-            setChaletForm(defaultValues);
+            setChaletForm(structuredClone(defaultValues));
         }
     }, [isEditMode, selectedChalet])
 
@@ -151,26 +151,16 @@ export const AddEditChalet = ({
         const { name, value, type, checked, files } = e.target;
 
         if (type === 'file') {
-            // ملفات متعددة → مصفوفة، مفردة → File واحد
-            if (name === 'imgs') {
-                setChaletForm(prev => ({
-                    ...prev,
-                    imgs: Array.from(files.length ? files : value)
-                }));
-            } else {
-                // اسم الحقل 'mainImg' أو 'video'
-                setChaletForm(prev => ({
-                    ...prev,
-                    [name]: files[0]
-                }));
-            }
+            setChaletForm(prev => ({
+                ...prev,
+                [name]: files[0]
+            }));
         } else if (type === 'checkbox') {
             setChaletForm(prev => ({
                 ...prev,
                 [name]: checked
             }));
         } else {
-            // إزالة المعالجة الخاصة لحقل description
             setChaletForm(prev => ({
                 ...prev,
                 [name]: value
@@ -208,14 +198,24 @@ export const AddEditChalet = ({
         if (!chaletForm.code) errors.code = 'الكود مطلوب';
 
         // ✅ Validate Features (no duplicates, no empty)
-        // const featureIds = chaletForm.features.map((f) => f.feature);
-        // const hasDuplicateFeatures = new Set(featureIds).size !== featureIds.length;
+        const featureIds = chaletForm.features.map((f) => f.feature);
+        const hasDuplicateFeatures = new Set(featureIds).size !== featureIds.length;
 
-        // if (chaletForm.features.length < 1 || chaletForm.features.some(f => !f.feature)) {
-        //     errors.features = 'يجب اختيار ميزة واحدة على الأقل';
-        // } else if (hasDuplicateFeatures) {
-        //     errors.features = 'لا يمكن اختيار نفس الميزة أكثر من مرة';
-        // }
+        if (chaletForm.features.length < 1 || chaletForm.features.some(f => !f.feature)) {
+            errors.features = 'يجب اختيار ميزة واحدة على الأقل';
+        } else if (hasDuplicateFeatures) {
+            errors.features = 'لا يمكن اختيار نفس الميزة أكثر من مرة';
+        }
+
+        const termIds = chaletForm.terms.map((t) => t);
+        const hasDuplicateTerms = new Set(termIds).size !== termIds.length;
+
+        // // ✅ Validate Terms
+        if (chaletForm.terms.length < 1) {
+            errors.terms = 'يجب اختيار شرط واحد على الأقل';
+        } else if (hasDuplicateTerms) {
+            errors.terms = 'لا يمكن تكرار نفس الشرط أكثر من مرة';
+        }
 
         // ✅ Validate Rooms (was badroomsDetails before)
         if (
@@ -235,22 +235,12 @@ export const AddEditChalet = ({
             }
         }
 
-        const termIds = chaletForm.terms.map((t) => t);
-        const hasDuplicateTerms = new Set(termIds).size !== termIds.length;
-
-        // ✅ Validate Terms
-        if (chaletForm.terms.length < 1) {
-            errors.terms = 'يجب اختيار شرط واحد على الأقل';
-        } else if (hasDuplicateTerms) {
-            errors.terms = 'لا يمكن تكرار نفس الشرط أكثر من مرة';
-        }
-
         // ✅ Validate Main Image on Add mode
-        if (!isEditMode && !chaletForm.mainImg) {
+        if (!chaletForm.mainImg) {
             errors.mainImg = 'الصورة الرئيسية مطلوبة';
         }
 
-        if (!isEditMode && chaletForm.imgs.length <= 0) {
+        if (chaletForm.imgs.length <= 0) {
             errors.imgs = 'الصورة الفرعية مطلوبة';
         }
 
@@ -268,8 +258,10 @@ export const AddEditChalet = ({
         const formData = new FormData();
 
         const KEYS_TO_STRINGIFY = ['rooms', 'features', 'terms', 'services'];
-        const DEEP_CHECK_KEYS = ['rooms', 'features', 'services'];
+        const DEEP_ARRAY_CHECK_KEYS = ['rooms', 'features', 'services'];
+        const FILE_DATA_KEYS = ['mainImg', 'video'];
         const ARRAY_CHECK_KEYS = ['terms'];
+        const ARRAY_PARSE_KEYS = ['imgs'];
         // const IGNORE_Check_KEYS = ['description']
         // const OBJECT_VALUES_KEYS = ['city', "village"];
 
@@ -284,34 +276,9 @@ export const AddEditChalet = ({
                 // ) continue;
 
                 if (
-                    key === 'mainImg' &&
-                    chaletForm[key] instanceof File &&
-                    chaletForm[key].filename === refData[key].filename
-                ) continue;
-
-                if (
                     key === 'imgs' &&
-                    chaletForm[key].every((value, index) => value['name'] === refData[key][index]['name'])
-                ) continue;
-
-                if (
-                    key === 'video' &&
-                    chaletForm[key] instanceof File &&
-                    chaletForm[key].name === refData[key].name
-                ) continue;
-
-                if (
-                    ARRAY_CHECK_KEYS.includes(key) &&
-                    chaletForm[key].length &&
                     chaletForm[key].length === refData[key].length &&
-                    chaletForm[key].every((value, index) => value === refData[key][index])
-                ) continue;
-
-                if (
-                    DEEP_CHECK_KEYS.includes(key) &&
-                    chaletForm[key].length &&
-                    chaletForm[key].length === refData[key].length &&
-                    chaletForm[key].every((value, index) => deepEqual(value, refData[key][index]))
+                    chaletForm[key].every((value, index) => filesAreEqual(value, refData[key][index]))
                 ) continue;
 
                 if (
@@ -321,6 +288,29 @@ export const AddEditChalet = ({
                 ) continue;
 
                 if (
+                    FILE_DATA_KEYS.includes(key) &&
+                    chaletForm[key] instanceof File &&
+                    filesAreEqual(chaletForm[key], refData[key])
+                ) continue;
+
+                if (
+                    ARRAY_CHECK_KEYS.includes(key) &&
+                    Array.isArray(chaletForm[key]) &&
+                    Array.isArray(refData[key]) &&
+                    chaletForm[key].length === refData[key].length &&
+                    chaletForm[key].every((value, index) => value === refData[key][index])
+                ) continue;
+
+                if (
+                    DEEP_ARRAY_CHECK_KEYS.includes(key) &&
+                    Array.isArray(chaletForm[key]) &&
+                    Array.isArray(refData[key]) &&
+                    chaletForm[key].length === refData[key].length &&
+                    chaletForm[key].every((value, index) => deepEqual(value, refData[key][index]))
+                ) continue;
+                
+
+                if (
                     // !IGNORE_Check_KEYS.includes(key) &&
                     chaletForm[key] === refData[key]
                 ) continue;
@@ -328,15 +318,15 @@ export const AddEditChalet = ({
 
             if (KEYS_TO_STRINGIFY.includes(key))
                 formData.append(key, JSON.stringify(chaletForm[key]));
-            else if (key === "imgs")
-                chaletForm.imgs.forEach(img => formData.append(key, img))
+            else if (ARRAY_PARSE_KEYS.includes(key))
+                chaletForm[key].forEach(value => formData.append(key, value))
             else
                 formData.append(key, chaletForm[key]);
 
             // console.log
         }
 
-        // console.log(...formData.entries())
+        console.log("formData", ...formData.entries());
 
         try {
             const response = isEditMode
@@ -363,7 +353,7 @@ export const AddEditChalet = ({
 
 
             setChalets((value) => isEditMode ? value.map((chalet) => { return (chalet._id === transformed._id ? { ...chalet, ...transformed } : chalet) }) : [...value, transformed]);
-            setChaletForm(defaultValues);
+            setChaletForm(structuredClone(defaultValues));
             setRefData({})
             onClose();
         } finally {
@@ -386,9 +376,9 @@ export const AddEditChalet = ({
                 formErrors={formErrors} />;
             case 2: return <ImagesTab
                 chaletForm={chaletForm}
-                handleFormChange={handleFormChange}
+                // handleFormChange={handleFormChange}
                 formErrors={formErrors}
-                isEditMode={isEditMode} />;
+                setChaletForm={setChaletForm} />;
             case 3: return <VideoTab
                 chaletForm={chaletForm}
                 handleFormChange={handleFormChange}

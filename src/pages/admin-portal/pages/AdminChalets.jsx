@@ -120,7 +120,6 @@ const AdminChalets = () => {
         cityName: chalet.city?.name || '—',
         villageName: chalet.village?.name || '—',
       }));
-      
 
       setChalets(transformed);
       setTotalPages(response.data.totalPages);
@@ -170,8 +169,6 @@ const AdminChalets = () => {
   const handleEditClick = (chalet) => {
     setSelectedChalet(chalet);
     setSelectedChaletId(chalet._id);
-
-    // setCurrentTab(0);
     setEditDialogOpen(true);
   };
 

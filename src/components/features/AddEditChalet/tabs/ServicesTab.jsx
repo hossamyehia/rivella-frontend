@@ -110,7 +110,7 @@ export default function ServicesTab({ dataForm, setDataForm, services, formError
                             <IconButton
                                 color="error"
                                 onClick={() => removeArrayItem('services', index)}
-                                disabled={dataForm.services.length <= 1}
+                                // disabled={dataForm.services.length <= 1}
                             >
                                 <DeleteIcon />
                             </IconButton>

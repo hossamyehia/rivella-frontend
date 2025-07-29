@@ -18,6 +18,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import Loader from '../../../components/Loader';
 import Swal from 'sweetalert2';
 import { useApiContext } from '../../../context/ApiContext';
@@ -38,6 +39,7 @@ const AdminServices = () => {
     const [formErrors, setFormErrors] = useState({});
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -56,8 +58,20 @@ const AdminServices = () => {
         })();
     }, []);
 
+    const handleEditClick = (data) => {
+        setSelectedServiceId(data._id);
+        setServiceForm({
+            name: data.name,
+            description: data.description
+        });
+        setIsEditing(true);
+        setFormErrors({});
+        setFormDialogOpen(true);
+    };
+
     const handleAddClick = () => {
         setServiceForm({ name: '', description: '' });
+        setIsEditing(false);
         setFormErrors({});
         setFormDialogOpen(true);
     };
@@ -77,37 +91,38 @@ const AdminServices = () => {
     };
 
     const handleSubmit = async () => {
-        if (!validateForm()) return;
+        if (!isEditing && !validateForm()) return;
 
         setIsLoading(true);
         try {
-            const response = await _ServiceService.createService(serviceForm);
+            const response = isEditing ? await _ServiceService.updateService(selectedServiceId, serviceForm) : await _ServiceService.createService(serviceForm);
             if (!response.success) {
                 Swal.fire({
                     title: 'خطأ',
-                    text: response.message || 'حدث خطأ أثناء إضافة الخدمة',
+                    text: response.message || `حدث خطأ أثناء ${isEditing ? 'تحديث' : 'إضافة'} الخدمة`,
                     icon: 'error',
                     confirmButtonText: 'حسناً'
                 });
                 return;
             }
-            setServices((value) => [...value, response.data.data]);
+            setServices((value) =>  isEditing ? value.map(f => f._id === selectedServiceId ? response.data.data : f) : [...value, response.data.data]);
             setFormDialogOpen(false);
             setServiceForm({ name: '', description: '' });
             Swal.fire({
-                title: 'تمت الإضافة',
-                text: 'تم إضافة الخدمة بنجاح',
+                title: 'تمت العملية بنجاح',
+                text: `تم ${isEditing ? 'تحديث' : 'إضافة'} الخدمة بنجاح`,
                 icon: 'success',
                 confirmButtonText: 'حسناً'
             });
+            setSelectedServiceId(null);
         } finally {
             setIsLoading(false);
         }
 
     };
 
-    const handleDeleteClick = (userId) => {
-        setSelectedServiceId(userId);
+    const handleDeleteClick = (serviceId) => {
+        setSelectedServiceId(serviceId);
         setDeleteDialogOpen(true);
     };
 
@@ -147,13 +162,14 @@ const AdminServices = () => {
             headerName: 'الإجراءات',
             width: 100,
             renderCell: (params) => (
-                <IconButton
-                    color="error"
-                    onClick={() => handleDeleteClick(params.row._id)}
-                    aria-label="حذف"
-                >
-                    <DeleteIcon />
-                </IconButton>
+                <Box>
+                    <IconButton color="primary" onClick={() => handleEditClick(params.row)}>
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDeleteClick(params.row._id)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </Box>
             ),
         },
     ];
@@ -201,7 +217,7 @@ const AdminServices = () => {
             </Paper>
 
             <Dialog open={formDialogOpen} onClose={() => setFormDialogOpen(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>إضافة خدمة جديدة</DialogTitle>
+                <DialogTitle>{isEditing ? 'تحديث الخدمة' : 'إضافة خدمة'}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={3} sx={{ mt: 1 }}>
                         <Grid item xs={12} sx={{ width: "100%" }}>
@@ -243,7 +259,7 @@ const AdminServices = () => {
                         variant="contained"
                         sx={{ fontSize: '16px', px: 4, py: 1 }}
                     >
-                        إضافة
+                        {isEditing ? 'تحديث' : 'اضافة'}
                     </Button>
                 </DialogActions>
             </Dialog>

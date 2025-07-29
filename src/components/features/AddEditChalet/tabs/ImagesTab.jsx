@@ -1,34 +1,52 @@
 import { Grid, Typography, Box, Button } from '@mui/material';
 
-export default function ImagesTab({ chaletForm, handleFormChange, formErrors, isEditMode }) {
+export default function ImagesTab({ chaletForm, setChaletForm, formErrors }) {
+    const handleFormChange = (e) => {
+        const { name, type, value, files } = e.target;
+        if (name === 'imgs') {
+            setChaletForm(prev => ({
+                ...prev,
+                imgs: Array.from(files && files.length ? files : value)
+            }));
+        } else {
+            setChaletForm(prev => ({
+                ...prev,
+                [name]: files[0]
+            }));
+        }
+    }
+    const onImagesChange = (type = "default") => {
+        if(type === "position")
+            return (index, direction) => 
+            ((e) => {
+                const imgs = [...chaletForm.imgs];
+                if (direction === 'left' && index < imgs.length - 1) {
+                    [imgs[index], imgs[index + 1]] = [imgs[index + 1], imgs[index]];
+                } else if (direction === 'right' && index > 0) {
+                    [imgs[index], imgs[index - 1]] = [imgs[index - 1], imgs[index]];
+                }
+                handleFormChange({ target: { name: 'imgs', value: imgs } });
+            });
+
+        if(type === "delete")
+            return (index) => 
+            ((e) => {
+                const imgs = [...chaletForm.imgs];
+                imgs.splice(index, 1);
+                handleFormChange({ target: { name: 'imgs', value: imgs } });
+            });
+
+        return (e) => {
+            const files = Array.from(e.target.files);
+            const newImages = [...chaletForm.imgs, ...files];
+            handleFormChange({
+                target: { name: 'imgs', value: newImages }
+            });
+        }
+    }
     return (
-        // <Grid container spacing={2} sx={{ mt: 1 }}>
-        //     <Grid item xs={12}>
-        //         <Typography variant="subtitle1" gutterBottom>الصورة الرئيسية</Typography>
-        //         <input
-        //             type="file"
-        //             accept="image/*"
-        //             name="mainImg"
-        //             onChange={handleFormChange}
-        //             style={{ display: 'block', marginBottom: '10px' }}
-        //             required
-        //         />
-        //         {formErrors.mainImg && <Typography color="error" variant="caption">{formErrors.mainImg}</Typography>}
-        //     </Grid>
-        //     <Grid item xs={12}>
-        //         <Typography variant="subtitle1" gutterBottom>الصور الإضافية</Typography>
-        //         <input
-        //             type="file"
-        //             accept="image/*"
-        //             name="imgs"
-        //             onChange={handleFormChange}
-        //             multiple
-        //             style={{ display: 'block' }}
-        //         />
-        //     </Grid>
-        // </Grid>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid item xs={12} size={{ xs: 12 }}>
                 <Typography variant="subtitle1" gutterBottom>الصورة الرئيسية</Typography>
                 <input
                     type="file"
@@ -44,26 +62,20 @@ export default function ImagesTab({ chaletForm, handleFormChange, formErrors, is
                         <img
                             src={(chaletForm.mainImg && typeof chaletForm.mainImg === 'string') ? chaletForm.mainImg : URL.createObjectURL(chaletForm.mainImg)}
                             alt="الصورة الرئيسية الحالية"
-                            style={{ maxWidth: '100%', maxHeight: '200px', display: 'block', marginTop: '5px' }}
+                            style={{ maxWidth: '100%', maxHeight: '300px', display: 'block', marginTop: '5px' }}
                         />
                     </Box>
                 )}
                 {formErrors.mainImg && <Typography color="error" variant="caption">{formErrors.mainImg}</Typography>}
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} size={{ xs: 12 }}>
                 <Typography variant="subtitle1" gutterBottom>الصور الإضافية</Typography>
                 <input
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        const updated = [...chaletForm.imgs, ...files];
-                        handleFormChange({
-                            target: { name: 'imgs', value: updated }
-                        });
-                    }}
+                    onChange={onImagesChange()}
                     style={{ display: 'block', marginBottom: 10 }}
                 />
 
@@ -77,34 +89,18 @@ export default function ImagesTab({ chaletForm, handleFormChange, formErrors, is
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                                         <Button
                                             size="small"
-                                            onClick={() => {
-                                                const imgs = [...chaletForm.imgs];
-                                                if (index > 0) {
-                                                    [imgs[index], imgs[index - 1]] = [imgs[index - 1], imgs[index]];
-                                                    handleFormChange({ target: { name: 'imgs', value: imgs } });
-                                                }
-                                            }}
+                                            onClick={onImagesChange("position")(index, 'right')}
                                             disabled={index === 0}
                                         >&#8594;</Button>
                                         <Button
                                             size="small"
-                                            onClick={() => {
-                                                const imgs = [...chaletForm.imgs];
-                                                if (index < imgs.length - 1) {
-                                                    [imgs[index], imgs[index + 1]] = [imgs[index + 1], imgs[index]];
-                                                    handleFormChange({ target: { name: 'imgs', value: imgs } });
-                                                }
-                                            }}
+                                            onClick={onImagesChange("position")(index, 'left')}
                                             disabled={index === chaletForm.imgs.length - 1}
                                         >&#8592;</Button>
                                         <Button
                                             size="small"
                                             color="error"
-                                            onClick={() => {
-                                                const imgs = [...chaletForm.imgs];
-                                                imgs.splice(index, 1);
-                                                handleFormChange({ target: { name: 'imgs', value: imgs } });
-                                            }}
+                                            onClick={onImagesChange("delete")(index)}
                                         >
                                             🗑️
                                         </Button>
@@ -115,6 +111,6 @@ export default function ImagesTab({ chaletForm, handleFormChange, formErrors, is
                     })}
                 </Grid>
             </Grid>
-        </Grid>
+        </Grid >
     );
 }

@@ -20,6 +20,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import Loader from '../../../components/Loader';
 import Swal from 'sweetalert2';
 import { useApiContext } from '../../../context/ApiContext';
@@ -40,6 +41,7 @@ const AdminTerms = () => {
     const [formErrors, setFormErrors] = useState({});
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedTermId, setSelectedTermId] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -58,15 +60,27 @@ const AdminTerms = () => {
         })();
     }, []);
 
+    const handleEditClick = (data) => {
+        setSelectedTermId(data._id);
+        setTermForm({
+            term: data.term,
+            allowed: data.allowed
+        });
+        setIsEditing(true);
+        setFormErrors({});
+        setFormDialogOpen(true);
+    };
+
     const handleAddClick = () => {
-        setTermForm({ term: '', allowed: '' });
+        setTermForm({ term: '', allowed: false });
+        setIsEditing(false);
         setFormErrors({});
         setFormDialogOpen(true);
     };
 
     const handleInputChange = (e) => {
         const { name, value, checked } = e.target;
-        setTermForm({ ...termForm, [name]: value === "on" ? checked : value });
+        setTermForm((prev) => ({ ...prev, [name]: value === "on" ? checked : value }));
         if (formErrors[name]) setFormErrors({ ...formErrors, [name]: '' });
     };
 
@@ -79,37 +93,38 @@ const AdminTerms = () => {
     };
 
     const handleSubmit = async () => {
-        if (!validateForm()) return;
+        if (!isEditing && !validateForm()) return;
 
         setIsLoading(true);
         try {
-            const response = await _TermService.createTerm(termForm);
+            const response = isEditing ? await _TermService.updateTerm(selectedTermId, termForm) : await _TermService.createTerm(termForm);
             if (!response.success) {
                 Swal.fire({
                     title: 'خطأ',
-                    text: response.message || 'حدث خطأ أثناء إضافة قاعدة',
+                    text: response.message || `حدث خطأ أثناء ${isEditing ? 'تحديث' : 'إضافة'} قاعدة`,
                     icon: 'error',
                     confirmButtonText: 'حسناً'
                 });
                 return;
             }
-            setTerms((value) => [...value, response.data.data]);
+            setTerms((value) => isEditing ? value.map(f => f._id === selectedTermId ? response.data.data : f) : [...value, response.data.data]);
             setFormDialogOpen(false);
             setTermForm({ term: '', allowed: '' });
             Swal.fire({
-                title: 'تمت الإضافة',
-                text: 'تم إضافة القاعدة بنجاح',
+                title: 'تمت العملية ',
+                text: `تم ${isEditing ? 'تحديث' : 'إضافة'} القاعدة بنجاح`,
                 icon: 'success',
                 confirmButtonText: 'حسناً'
             });
+            setSelectedTermId(null);
         } finally {
             setIsLoading(false);
         }
 
     };
 
-    const handleDeleteClick = (userId) => {
-        setSelectedTermId(userId);
+    const handleDeleteClick = (termId) => {
+        setSelectedTermId(termId);
         setDeleteDialogOpen(true);
     };
 
@@ -149,13 +164,14 @@ const AdminTerms = () => {
             headerName: 'الإجراءات',
             width: 100,
             renderCell: (params) => (
-                <IconButton
-                    color="error"
-                    onClick={() => handleDeleteClick(params.row._id)}
-                    aria-label="حذف"
-                >
-                    <DeleteIcon />
-                </IconButton>
+                <Box>
+                    <IconButton color="primary" onClick={() => handleEditClick(params.row)}>
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDeleteClick(params.row._id)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </Box>
             ),
         },
     ];
@@ -203,7 +219,7 @@ const AdminTerms = () => {
             </Paper>
 
             <Dialog open={formDialogOpen} onClose={() => setFormDialogOpen(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>إضافة قاعدة جديدة</DialogTitle>
+                <DialogTitle>{isEditing ? 'تحديث' : 'إضافة'} قاعدة </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={3} sx={{ mt: 1 }}>
                         <Grid item xs={12} sx={{ width: "100%" }}>
@@ -242,7 +258,7 @@ const AdminTerms = () => {
                         variant="contained"
                         sx={{ fontSize: '16px', px: 4, py: 1 }}
                     >
-                        إضافة
+                        {isEditing ? 'تحديث' : 'إضافة'}
                     </Button>
                 </DialogActions>
             </Dialog>
