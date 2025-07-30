@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { CacheProvider } from '@emotion/react';
@@ -7,13 +7,10 @@ import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
 
 // Context Provider
-import AppContextProvider from './context/AppContextProvider';
+import AppContextProvider from './shared/context/appProvider.context';
 
 // Routes
-import NotFoundPage from './pages/NotFoundPage';
-import AdminPortal from './pages/admin-portal';
-import UserPortal from './pages/user-portal';
-import GuestPortal from './pages/guest-portal';
+import Router from './router';
 
 // Create RTL cache
 const cacheRtl = createCache({
@@ -109,14 +106,7 @@ function App() {
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
         <AppContextProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/admin/*" element={<AdminPortal />} />
-              <Route path="/user/*" element={<UserPortal />} />
-              <Route path="/*" element={<GuestPortal />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </BrowserRouter>
+          <Router />
         </AppContextProvider>
       </ThemeProvider>
     </CacheProvider>
