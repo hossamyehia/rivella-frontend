@@ -18,7 +18,7 @@ import RoomsTab from './tabs/RoomsTab';
 import FeaturesTab from './tabs/FeaturesTab';
 import TermsTab from './tabs/TermsTab';
 import Swal from 'sweetalert2';
-import {  createFileFromUrl, deepEqual, filesAreEqual } from '../../../../../shared/utils/_helper';
+import { createFileFromUrl, deepEqual, filesAreEqual } from '../../../../../shared/utils/_helper';
 import ServicesTab from './tabs/ServicesTab';
 
 const defaultValues = {
@@ -128,7 +128,7 @@ export const AddEditChalet = ({
                         services: selectedChalet?.services?.length > 0 ? selectedChalet.services.map((value) => { return { service: value.service?._id || "", price: value.price || 0 } }) : [],
                         terms: selectedChalet?.terms?.length > 0 ? selectedChalet.terms.map((value) => value._id) : []
                     }
-                    
+
                     setRefData(structuredClone(_Data));
                     setChaletForm(structuredClone(_Data));
                 } catch (err) {
@@ -308,7 +308,7 @@ export const AddEditChalet = ({
                     chaletForm[key].length === refData[key].length &&
                     chaletForm[key].every((value, index) => deepEqual(value, refData[key][index]))
                 ) continue;
-                
+
 
                 if (
                     // !IGNORE_Check_KEYS.includes(key) &&
@@ -413,15 +413,37 @@ export const AddEditChalet = ({
         <Dialog
             open={isOpen}
             onClose={onClose}
-            maxWidth="md"
             fullWidth
+            maxWidth={'md'}
+            slotProps={{
+                paper: {
+                    sx: {
+                        width: "100%",
+                        margin: { xs: "1rem", md: "initial" },
+                    },
+                },
+            }}
         >
             <DialogTitle>
                 {title}
             </DialogTitle>
             <DialogContent>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-                    <Tabs value={currentTab} onChange={handleTabChange} aria-label="chalet add tabs">
+                <Box sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    mb: 2,
+                    width: "100%",
+                    maxWidth: "100vw",
+                    overflowX: "auto"
+                }}>
+                    <Tabs
+                        value={currentTab}
+                        onChange={handleTabChange}
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        allowScrollButtonsMobile={true}
+                        // sx={{ overflowX: "auto" }}
+                        aria-label="chalet add tabs">
                         <Tab label="المعلومات الأساسية" />
                         <Tab label="وصف الشاليه" />
                         <Tab label="الصور" />

@@ -169,8 +169,8 @@ const VillagesManage = () => {
       cityId: row.cityId || row.city?._id,
       image: null,
       imagePreview: row.img, // existing main image URL
-      features: row.features?.map((value)=> {return { ...value, feature: value.feature?._id || "" }}) || [],
-      services: row.services?.map((value)=> {return { ...value, service: value.service?._id || "" }}) || [],
+      features: row.features?.map((value) => { return { ...value, feature: value.feature?._id || "" } }) || [],
+      services: row.services?.map((value) => { return { ...value, service: value.service?._id || "" } }) || [],
       images: [],
       imagesPreviews: row.imgs || [] // existing additional images URLs
     });
@@ -255,7 +255,7 @@ const VillagesManage = () => {
 
     // Append features as JSON
     formData.append('features', JSON.stringify(villageForm.features));
-    
+
     // Append services as JSON
     formData.append('services', JSON.stringify(villageForm.services));
 
@@ -345,11 +345,11 @@ const VillagesManage = () => {
       headerName: 'الميزات',
       width: 200,
       renderCell: (params) => {
-        const features = params.row?.features ? params.row?.features?.map((value)=> {return {...value, name: value.feature?.name || value.name || "", price: value.price || 0}}) : [];
+        const features = params.row?.features ? params.row?.features?.map((value) => { return { ...value, name: value.feature?.name || value.name || "", price: value.price || 0 } }) : [];
         return features.length ? (
           <Box sx={{ height: "100%", width: "100%", display: 'flex', alignContent: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
             {features.slice(0, 2).map((feature, index) => (
-              <Chip key={index} sx={{lineHeight: '3ch'}} label={`${feature.name} - ${feature.price || 'مجاني'}`} size="small" />
+              <Chip key={index} sx={{ lineHeight: '3ch' }} label={`${feature.name} - ${feature.price || 'مجاني'}`} size="small" />
             ))}
             {/* {features.length > 2 && <Chip label={`+${features.length - 2}`} size="small" variant="outlined" />} */}
           </Box>
@@ -361,11 +361,11 @@ const VillagesManage = () => {
       headerName: 'الخدمات',
       width: 200,
       renderCell: (params) => {
-        const services = params.row?.services ? params.row?.services?.map((value)=> {return {...value, name: value.service?.name || value.name || "", price: value.price || 0}}) : [];
+        const services = params.row?.services ? params.row?.services?.map((value) => { return { ...value, name: value.service?.name || value.name || "", price: value.price || 0 } }) : [];
         return services.length ? (
           <Box sx={{ height: "100%", width: "100%", display: 'flex', alignContent: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
             {services.slice(0, 2).map((service, index) => (
-              <Chip key={index} sx={{lineHeight: '3ch'}} label={`${service.name} - ${service.price || 'مجاني'}`} size="small" />
+              <Chip key={index} sx={{ lineHeight: '3ch' }} label={`${service.name} - ${service.price || 'مجاني'}`} size="small" />
             ))}
             {/* {features.length > 2 && <Chip label={`+${features.length - 2}`} size="small" variant="outlined" />} */}
           </Box>
@@ -448,7 +448,20 @@ const VillagesManage = () => {
       </Dialog>
 
       {/* Add/Edit Village Dialog */}
-      <Dialog open={formDialogOpen} onClose={() => setFormDialogOpen(false)} maxWidth="md">
+      <Dialog
+        open={formDialogOpen}
+        onClose={() => setFormDialogOpen(false)}
+        fullWidth
+        maxWidth={'md'}
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              margin: { xs: "1rem", md: "initial" }, 
+            },
+          },
+        }}
+      >
         <DialogTitle>{isEditing ? 'تعديل قرية' : 'إضافة قرية جديدة'}</DialogTitle>
         <DialogContent>
           <Container maxWidth="md" sx={{ mt: 4 }}>

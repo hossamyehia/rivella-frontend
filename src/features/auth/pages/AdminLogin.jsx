@@ -63,7 +63,7 @@ const AdminLogin = () => {
         showConfirmButton: false,
         timer: 1500,
       });
-      navigate('/admin');
+      navigate('/dashboard');
     }
     else {
       Swal.fire({
