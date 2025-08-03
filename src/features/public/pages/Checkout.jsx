@@ -192,14 +192,14 @@ const Checkout = () => {
 
     const payload = {
       chaletId: bookingDetails.chaletId,
-      checkIn: format(new Date(bookingDetails.startDate),'dd/MM/yyyy',{locale:ar}), //bookingDetails.startDate.split('T')[0],
-      checkOut: format(new Date(bookingDetails.endDate),'dd/MM/yyyy',{locale:ar}), //bookingDetails.endDate.split('T')[0],
+      checkIn: format(new Date(bookingDetails.startDate),'yyyy-MM-dd',{locale:ar}), //bookingDetails.startDate.split('T')[0],
+      checkOut: format(new Date(bookingDetails.endDate),'yyyy-MM-dd',{locale:ar}), //bookingDetails.endDate.split('T')[0],
       couponCode: appliedCoupon?.code || '',
       guests: bookingDetails.guestCount || 1,
       additionalDetails: guestInfo.additionalDetails || ''
     };
 
-    console.log(JSON.stringify(payload), "Start Date: ", bookingDetails.startDate, "End Date: ", bookingDetails.endDate);
+    // console.log(JSON.stringify(payload), "Start Date: ", bookingDetails.startDate, "End Date: ", bookingDetails.endDate);
     
     if (!isLogin) Object.assign(payload, {
       name: guestInfo.fullName,
