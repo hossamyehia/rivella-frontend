@@ -192,12 +192,14 @@ const Checkout = () => {
 
     const payload = {
       chaletId: bookingDetails.chaletId,
-      checkIn: bookingDetails.startDate.split('T')[0],
-      checkOut: bookingDetails.endDate.split('T')[0],
+      checkIn: format(new Date(bookingDetails.startDate),'dd/MM/yyyy',{locale:ar}), //bookingDetails.startDate.split('T')[0],
+      checkOut: format(new Date(bookingDetails.endDate),'dd/MM/yyyy',{locale:ar}), //bookingDetails.endDate.split('T')[0],
       couponCode: appliedCoupon?.code || '',
       guests: bookingDetails.guestCount || 1,
       additionalDetails: guestInfo.additionalDetails || ''
     };
+
+    console.log(JSON.stringify(payload), "Start Date: ", bookingDetails.startDate, "End Date: ", bookingDetails.endDate);
     
     if (!isLogin) Object.assign(payload, {
       name: guestInfo.fullName,
@@ -209,6 +211,7 @@ const Checkout = () => {
       const headers = isLogin
         ? { headers: { token: localStorage.getItem('token') } }
         : {};
+        debugger;
       const res = await axiosInstance.post('/booking', payload, headers);
       setReceipt(res.data.data);
       sessionStorage.clear();
